@@ -1,0 +1,249 @@
+"""
+Enterprise REST API for PL Capital Portfolio Analytics Agent.
+Built with FastAPI, featuring Swagger UI, schema validation,
+portfolio comparisons, CSV export, and financial risk glossary.
+"""
+
+import io
+import sys
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+import pandas as pd
+from fastapi import FastAPI, HTTPException, Query, Response
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
+
+# Ensure root directory is on sys.path
+BASE_DIR = Path(__file__).resolve().parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
+WEB_DIR = BASE_DIR / "web"
+
+from agent.portfolio_agent import PortfolioAgent
+from database.db_manager import DatabaseManager, default_db_manager
+from evaluation.evaluator import AgentEvaluator
+from tools.exposure_calculator import ExposureCalculator
+from validation.data_reconciler import DataReconciler
+
+app = FastAPI(
+    title="PL Capital Portfolio Analytics API",
+    description="Evidence-Grounded Financial Intelligence Agent REST API with Multi-Tool Routing & Telemetry",
+    version="2.0.0",
+)
+
+agent = PortfolioAgent()
+db_manager = default_db_manager
+exposure_calc = ExposureCalculator(db_manager)
+reconciler = DataReconciler(db_manager)
+
+
+@app.get("/", tags=["Dashboard"], response_class=FileResponse)
+def serve_dashboard():
+    """Serves the interactive web cockpit application."""
+    index_file = WEB_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"message": "PL Capital Financial Intelligence API", "docs": "/docs"}
+
+
+@app.get("/dashboard", tags=["Dashboard"], response_class=FileResponse)
+def serve_dashboard_alias():
+    """Serves the interactive web cockpit application (alias)."""
+    return serve_dashboard()
+
+
+class QueryRequest(BaseModel):
+    question: str = Field(..., description="Natural language question about investment portfolios")
+
+
+class QueryResponse(BaseModel):
+    timestamp: str
+    question: str
+    selected_tool: str
+    routing_rationale: str
+    direct_answer: str
+    methodology: str
+    formatted_markdown: str
+    telemetry: Dict[str, Any]
+    evidence: Optional[Any] = None
+    total_latency_ms: float
+
+
+@app.get("/health", tags=["System"])
+def health_check():
+    """Health status and database record integrity check."""
+    summary = db_manager.verify_database()
+    return {
+        "status": "healthy",
+        "service": "PL Capital Financial Intelligence API",
+        "version": "2.0.0",
+        "database": {
+            "tables": summary["total_tables"],
+            "records": summary["total_records"],
+            "foreign_key_violations": summary["fk_violations"],
+            "all_counts_match": summary["all_counts_match"],
+        },
+    }
+
+
+@app.post("/api/v1/query", response_model=QueryResponse, tags=["Agent Analytics"])
+def ask_portfolio_agent(req: QueryRequest):
+    """
+    Translates a natural language question into validated SQL or exposure metrics,
+    returning an evidence-grounded financial audit payload.
+    """
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    res = agent.answer_question(req.question)
+    return QueryResponse(
+        timestamp=res.get("timestamp", ""),
+        question=res["question"],
+        selected_tool=res["selected_tool"],
+        routing_rationale=res["routing_rationale"],
+        direct_answer=res["direct_answer"],
+        methodology=res["methodology"],
+        formatted_markdown=res["formatted_markdown"],
+        telemetry=res["telemetry"],
+        evidence=res.get("evidence"),
+        total_latency_ms=res.get("total_latency_ms", 0.0),
+    )
+
+
+@app.get("/api/v1/exposure/{identifier}", tags=["Portfolio Tools"])
+def get_portfolio_exposure(identifier: str):
+    """
+    Calculates equity sector exposure for a specific portfolio,
+    enforcing bond exclusion and weight reconciliation.
+    """
+    try:
+        return exposure_calc.calculate_exposure(identifier)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/compare/{id1}/{id2}", tags=["Portfolio Tools"])
+def compare_portfolios(id1: str, id2: str):
+    """
+    Performs side-by-side sector exposure and active spread comparison
+    between two portfolios.
+    """
+    try:
+        return exposure_calc.compare_portfolios(id1, id2)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/portfolios", tags=["Portfolio Tools"])
+def list_portfolios():
+    """Returns list of all active and passive portfolios in the database."""
+    conn = db_manager.get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT portfolio_id, portfolio_name, target_risk_level, total_aum, strategy_type, benchmark_index, status FROM portfolios ORDER BY portfolio_id")
+    portfolios = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return {"total": len(portfolios), "portfolios": portfolios}
+
+
+@app.get("/api/v1/portfolio/{portfolio_id}/performance", tags=["Portfolio Analytics"])
+def get_portfolio_performance(portfolio_id: int):
+    """Returns historical NAV series and risk metrics for a specific portfolio."""
+    conn = db_manager.get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT performance_date, nav, total_return_1m, total_return_3m, total_return_1y, volatility, sharpe_ratio, max_drawdown FROM portfolio_performance WHERE portfolio_id = ? ORDER BY performance_date",
+        (portfolio_id,),
+    )
+    perf = [dict(r) for r in cursor.fetchall()]
+
+    cursor.execute(
+        "SELECT calculation_date, var_95, var_99, cvar_95, beta, correlation_sp500, tracking_error, information_ratio, sortino_ratio FROM risk_metrics WHERE portfolio_id = ? ORDER BY calculation_date",
+        (portfolio_id,),
+    )
+    risk = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+
+    if not perf and not risk:
+        raise HTTPException(status_code=404, detail=f"No performance or risk data found for portfolio {portfolio_id}")
+
+    return {
+        "portfolio_id": portfolio_id,
+        "performance_records": perf,
+        "risk_records": risk,
+    }
+
+
+@app.get("/api/v1/reconcile/{portfolio_id}", tags=["Integrity & Auditing"])
+def reconcile_portfolio(portfolio_id: int):
+    """Audits weights, detects unallocated cash buffers, and checks bond holdings."""
+    try:
+        return reconciler.reconcile_portfolio(portfolio_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/api/v1/export/audit-csv", tags=["Integrity & Auditing"])
+def export_audit_csv():
+    """Exports portfolio weight reconciliation audit as downloadable CSV."""
+    audits = reconciler.audit_all_portfolios()
+    summary = []
+    for a in audits:
+        p = a["portfolio"]
+        summary.append({
+            "Portfolio ID": p["portfolio_id"],
+            "Portfolio Name": p["portfolio_name"],
+            "Target Risk": p["target_risk_level"],
+            "Holdings Count": a["total_holdings_count"],
+            "Total Weight (%)": a["total_weight_pct"],
+            "Equity Weight (%)": a["equity_weight_pct"],
+            "Bond Weight (%)": a["bond_weight_pct"],
+            "Unallocated Cash Buffer (%)": a["unallocated_weight_pct"],
+            "Audit Status": a["reconciliation_status"],
+        })
+    df = pd.DataFrame(summary)
+    csv_str = df.to_csv(index=False)
+    return Response(
+        content=csv_str,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=portfolio_weight_audit.csv"},
+    )
+
+
+@app.get("/api/v1/metrics/glossary", tags=["Financial Reference"])
+def get_metrics_glossary():
+    """Provides institutional definitions for quantitative risk and performance metrics."""
+    return {
+        "Sharpe Ratio": "Measure of risk-adjusted excess return per unit of total portfolio volatility: (R_p - R_f) / sigma_p.",
+        "Sortino Ratio": "Modification of Sharpe ratio using downside deviation rather than total standard deviation.",
+        "Value at Risk (VaR 95%)": "Maximum estimated portfolio loss with 95% confidence over a specific investment horizon.",
+        "Conditional VaR (CVaR 95% / Expected Shortfall)": "Expected average loss in the tail distribution beyond the 95% VaR threshold.",
+        "Beta": "Measure of portfolio systematic risk / volatility relative to the benchmark market index (S&P 500).",
+        "Herfindahl-Hirschman Index (HHI)": "Measure of sector concentration: sum of squared sector weights. HHI > 0.5 indicates high concentration.",
+        "Effective Number of Sectors (Neff)": "Reciprocal of sector HHI (1 / HHI), representing the number of equally weighted sectors.",
+        "Max Drawdown": "Maximum observed peak-to-trough decline before a new peak is achieved.",
+    }
+
+
+@app.get("/api/v1/history", tags=["Session & Audit"])
+def get_query_history():
+    """Returns the session query log with tools routed and latencies."""
+    return {"total_queries": len(agent.get_history()), "history": agent.get_history()}
+
+
+@app.get("/api/v1/evaluate", tags=["Benchmark & Evaluation"])
+def run_evaluation():
+    """Runs the 10-question ground truth evaluation benchmark."""
+    evaluator = AgentEvaluator(db_manager)
+    return evaluator.evaluate_all()
+
+
+if __name__ == "__main__":
+    import uvicorn
+    print("Starting PL Capital Agent REST API on http://127.0.0.1:8000 ...")
+    uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=False)
