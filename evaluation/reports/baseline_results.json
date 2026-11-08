@@ -1,0 +1,224 @@
+{
+  "timestamp": "2026-11-08T08:19:08.815505",
+  "total_questions": 10,
+  "passed_questions": 10,
+  "failed_questions": 0,
+  "accuracy_pct": 100.0,
+  "routing_accuracy_pct": 100.0,
+  "completeness_pct": 100.0,
+  "total_benchmark_time_ms": 19.96,
+  "avg_latency_ms": 2.0,
+  "p50_latency_ms": 1.57,
+  "p95_latency_ms": 2.69,
+  "results": [
+    {
+      "id": 1,
+      "type": "text2sql",
+      "difficulty": "easy",
+      "question": "How many portfolios do we have in total?",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 2.69,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_val": 13,
+        "actual_val": 13
+      }
+    },
+    {
+      "id": 2,
+      "type": "text2sql",
+      "difficulty": "easy",
+      "question": "What are the names of all active portfolios?",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.56,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_count": 10,
+        "actual_count": 10
+      }
+    },
+    {
+      "id": 3,
+      "type": "text2sql",
+      "difficulty": "easy",
+      "question": "Which securities are in the Technology sector?",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.57,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_count": 8,
+        "actual_count": 8
+      }
+    },
+    {
+      "id": 4,
+      "type": "text2sql",
+      "difficulty": "medium",
+      "question": "What is the total Assets Under Management (AUM) for portfolios with high target risk level?",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.64,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_val": 85000000.0,
+        "actual_val": 85000000.0
+      }
+    },
+    {
+      "id": 5,
+      "type": "text2sql",
+      "difficulty": "medium",
+      "question": "Show me the top 5 holdings by cost basis in the Growth Equity Fund",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.4,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_count": 5,
+        "actual_count": 5
+      }
+    },
+    {
+      "id": 6,
+      "type": "text2sql",
+      "difficulty": "medium",
+      "question": "What is the average current price of securities in each sector?",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.35,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_count": 7,
+        "actual_count": 7
+      }
+    },
+    {
+      "id": 7,
+      "type": "text2sql",
+      "difficulty": "hard",
+      "question": "For each portfolio, show the total value of Technology sector holdings and what percentage it represents of the total portfolio value",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.9,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_count": 8,
+        "actual_count": 8
+      }
+    },
+    {
+      "id": 8,
+      "type": "text2sql",
+      "difficulty": "hard",
+      "question": "Find portfolios that have holdings in more than 5 different sectors and show their diversification metrics",
+      "tool_selected": "sql_query_tool",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.87,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "sql_query_tool",
+        "reason": "",
+        "expected_count": 1,
+        "actual_count": 1
+      }
+    },
+    {
+      "id": 9,
+      "type": "exposure_calculator",
+      "difficulty": "medium",
+      "question": "What are the sector exposures for the Tech Innovation Fund?",
+      "tool_selected": "exposure_calculator",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 0.93,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "exposure_calculator",
+        "reason": "",
+        "expected_exposures": {
+          "Technology": 100.0
+        },
+        "actual_exposures": {
+          "Technology": 100.0
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "exposure_calculator",
+      "difficulty": "medium",
+      "question": "Calculate the sector exposure breakdown for international equity",
+      "tool_selected": "exposure_calculator",
+      "routing_passed": true,
+      "result_passed": true,
+      "completeness_passed": true,
+      "overall_passed": true,
+      "latency_ms": 1.53,
+      "details": {
+        "routing_passed": true,
+        "expected_tool": "exposure_calculator",
+        "reason": "",
+        "expected_exposures": {
+          "Energy": 38.0,
+          "Technology": 36.0,
+          "Automotive": 15.0,
+          "Consumer Staples": 11.0
+        },
+        "actual_exposures": {
+          "Energy": 38.0,
+          "Technology": 36.0,
+          "Automotive": 15.0,
+          "Consumer Staples": 11.0
+        }
+      }
+    }
+  ],
+  "regression_status": {
+    "status": "PASS_NO_REGRESSION",
+    "message": "Accuracy matched or exceeded baseline (100.0% >= 100.0%).",
+    "diff": 0.0
+  }
+}
