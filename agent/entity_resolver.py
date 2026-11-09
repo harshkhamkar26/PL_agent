@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+from database.db_manager import get_default_db_path, DatabaseManager
 
 
 @dataclass
@@ -194,7 +195,7 @@ class EntityResolver:
     }
 
     def __init__(self, db_path: Optional[str] = None):
-        self.db_path = db_path or str(BASE_DIR / "portfolio_database.db")
+        self.db_path = str(db_path) if db_path else str(get_default_db_path())
         self.securities_by_symbol: Dict[str, SecurityEntity] = {}
         self.securities_by_id: Dict[int, SecurityEntity] = {}
         self.portfolios_by_id: Dict[int, PortfolioEntity] = {}
@@ -206,7 +207,8 @@ class EntityResolver:
     def _load_master_data(self):
         """Loads master reference data from SQLite database into memory caches."""
         try:
-            conn = sqlite3.connect(self.db_path)
+            mgr = DatabaseManager(self.db_path)
+            conn = mgr.get_connection()
             conn.row_factory = sqlite3.Row
             cur = conn.cursor()
 

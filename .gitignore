@@ -53,6 +53,7 @@ htmlcov/
 
 # Database files (Auto-generated from data/*.csv upon first run)
 *.db
+!portfolio_database.db
 *.sqlite
 *.sqlite3
 *.db-journal

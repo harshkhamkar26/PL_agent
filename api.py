@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 import pandas as pd
 from fastapi import FastAPI, HTTPException, Query, Response
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -30,10 +30,30 @@ from validation.sql_validator import ALLOWED_TABLES, SQLValidator
 
 from fastapi.middleware.cors import CORSMiddleware
 
+from contextlib import asynccontextmanager
+
+agent = PortfolioAgent()
+db_manager = default_db_manager
+exposure_calc = ExposureCalculator(db_manager)
+reconciler = DataReconciler(db_manager)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Warm up database connection and master entity indexes."""
+    try:
+        conn = db_manager.get_connection()
+        conn.close()
+    except Exception as e:
+        print(f"[API Startup] DB warm-up notice: {e}")
+    yield
+
+
 app = FastAPI(
     title="PL Capital Portfolio Analytics API",
     description="Evidence-Grounded Financial Intelligence Agent REST API with Multi-Tool Routing & Telemetry",
     version="2.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -44,22 +64,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-agent = PortfolioAgent()
-db_manager = default_db_manager
-exposure_calc = ExposureCalculator(db_manager)
-reconciler = DataReconciler(db_manager)
 
-
-@app.get("/", tags=["Dashboard"], response_class=FileResponse)
+@app.get("/", tags=["Dashboard"], response_class=HTMLResponse)
 def serve_dashboard():
     """Serves the interactive web cockpit application."""
     index_file = WEB_DIR / "index.html"
     if index_file.exists():
-        return FileResponse(index_file)
-    return {"message": "PL Capital Financial Intelligence API", "docs": "/docs"}
+        return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
+    return HTMLResponse(
+        content="""<!DOCTYPE html><html><head><title>PL Capital API</title></head>
+        <body style="background:#121418;color:#eee;font-family:sans-serif;padding:40px;">
+        <h1>PL Capital Portfolio Analytics API</h1>
+        <p>Evidence-Grounded Financial Intelligence Agent</p>
+        <p><a href="/docs" style="color:#ff5722;">Access Swagger API Documentation</a></p>
+        </body></html>"""
+    )
 
 
-@app.get("/dashboard", tags=["Dashboard"], response_class=FileResponse)
+@app.get("/dashboard", tags=["Dashboard"], response_class=HTMLResponse)
 def serve_dashboard_alias():
     """Serves the interactive web cockpit application (alias)."""
     return serve_dashboard()

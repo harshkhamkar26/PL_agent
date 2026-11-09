@@ -47,7 +47,7 @@ class PortfolioAgent:
     ):
         self.db_manager = DatabaseManager(db_path) if db_path else default_db_manager
         # Backward compatibility with assignment README template
-        self.db_connection = sqlite3.connect(self.db_manager.db_path)
+        self.db_connection = self.db_manager.get_connection()
 
         self.gemini_client = GeminiClient(api_key=gemini_api_key) if gemini_api_key else default_gemini_client
         self.sql_tool = SQLQueryTool(db_manager=self.db_manager, gemini_client=self.gemini_client)

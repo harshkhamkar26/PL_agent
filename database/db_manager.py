@@ -15,7 +15,33 @@ import pandas as pd
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 SCHEMA_PATH = BASE_DIR / "database" / "database_schema.sql"
-DEFAULT_DB_PATH = BASE_DIR / "portfolio_database.db"
+def get_default_db_path() -> Path:
+    """
+    Determines the active database file path.
+    In serverless environments (e.g. Vercel, AWS Lambda) or when the project root
+    is read-only, routes the database to the writable '/tmp' filesystem.
+    Copies an existing database from BASE_DIR if present, or initializes a fresh copy.
+    """
+    is_serverless = bool(
+        os.environ.get("VERCEL")
+        or os.environ.get("AWS_LAMBDA_FUNCTION_NAME")
+        or os.environ.get("LAMBDA_TASK_ROOT")
+    )
+    if is_serverless or not os.access(BASE_DIR, os.W_OK):
+        tmp_db = Path("/tmp") / "portfolio_database.db"
+        bundled_db = BASE_DIR / "portfolio_database.db"
+        if bundled_db.exists() and not tmp_db.exists():
+            try:
+                tmp_db.parent.mkdir(parents=True, exist_ok=True)
+                import shutil
+                shutil.copyfile(bundled_db, tmp_db)
+            except Exception as e:
+                print(f"[DatabaseManager] Notice: Could not copy bundled DB to /tmp: {e}")
+        return tmp_db
+    return BASE_DIR / "portfolio_database.db"
+
+
+DEFAULT_DB_PATH = get_default_db_path()
 
 # Ordered list of tables to respect foreign key constraints
 TABLE_DEPENDENCY_ORDER = [
@@ -47,11 +73,17 @@ class DatabaseManager:
     """Manages SQLite database lifecycle, schema, ingestion, and querying."""
 
     def __init__(self, db_path: Optional[str] = None):
-        self.db_path = str(db_path) if db_path else str(DEFAULT_DB_PATH)
+        self.db_path = str(db_path) if db_path else str(get_default_db_path())
         self.is_memory = self.db_path == ":memory:"
 
     def _create_raw_connection(self) -> sqlite3.Connection:
         """Create a raw configured SQLite connection without auto-initialization checks."""
+        if not self.is_memory:
+            p = Path(self.db_path)
+            try:
+                p.parent.mkdir(parents=True, exist_ok=True)
+            except Exception:
+                pass
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON;")
@@ -63,8 +95,13 @@ class DatabaseManager:
 
         # Auto-initialize if database was just created or lacks the core portfolios table
         cursor = conn.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='portfolios';")
-        if cursor.fetchone() is None:
+        has_portfolios = False
+        try:
+            cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='portfolios';")
+            has_portfolios = cursor.fetchone() is not None
+        except Exception:
+            has_portfolios = False
+        if not has_portfolios:
             conn.close()
             self.initialize_database()
             conn = self._create_raw_connection()
