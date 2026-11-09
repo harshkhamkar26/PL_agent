@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-11-09T22:36:04.031645",
+  "timestamp": "2026-11-09T22:50:16.828671",
   "total_questions": 10,
   "passed_questions": 10,
   "failed_questions": 0,
   "accuracy_pct": 100.0,
   "routing_accuracy_pct": 100.0,
   "completeness_pct": 100.0,
-  "total_benchmark_time_ms": 41.83,
-  "avg_latency_ms": 4.18,
-  "p50_latency_ms": 3.18,
-  "p95_latency_ms": 6.95,
+  "total_benchmark_time_ms": 39.56,
+  "avg_latency_ms": 3.96,
+  "p50_latency_ms": 2.98,
+  "p95_latency_ms": 7.11,
   "results": [
     {
       "id": 1,
@@ -21,7 +21,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 2.65,
+      "latency_ms": 2.75,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -40,7 +40,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 2.54,
+      "latency_ms": 2.81,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -59,7 +59,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 6.32,
+      "latency_ms": 2.98,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -78,7 +78,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 3.11,
+      "latency_ms": 2.8,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -97,7 +97,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 3.52,
+      "latency_ms": 3.64,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -116,7 +116,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 3.18,
+      "latency_ms": 3.42,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -135,7 +135,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 6.95,
+      "latency_ms": 7.11,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -154,7 +154,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 6.33,
+      "latency_ms": 6.45,
       "details": {
         "routing_passed": true,
         "expected_tool": "sql_query_tool",
@@ -173,7 +173,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 1.38,
+      "latency_ms": 1.49,
       "details": {
         "routing_passed": true,
         "expected_tool": "exposure_calculator",
@@ -196,7 +196,7 @@
       "result_passed": true,
       "completeness_passed": true,
       "overall_passed": true,
-      "latency_ms": 1.41,
+      "latency_ms": 1.49,
       "details": {
         "routing_passed": true,
         "expected_tool": "exposure_calculator",

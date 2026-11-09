@@ -1,5 +1,5 @@
 [tool.vercel]
-entrypoint = "api:app"
+entrypoint = "app:app"
 
 [project]
 name = "pl-capital-agent"
