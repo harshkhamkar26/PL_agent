@@ -25,10 +25,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run Pytest Test Suite (57 Tests)
+    - name: Initialize Relational Database
       run: |
-        pytest tests/ -v
+        python database/db_manager.py
+
+    - name: Run Pytest Test Suite (106 Tests)
+      run: |
+        python -m pytest tests/ -v
 
     - name: Run Ground Truth Benchmark Evaluator (10/10)
       run: |
-        python -m evaluation.evaluator
+        python main.py --eval
+
+    - name: Run Expanded Regression Benchmark Suite (23/23)
+      run: |
+        python main.py --regression

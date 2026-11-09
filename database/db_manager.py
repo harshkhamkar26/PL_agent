@@ -50,12 +50,16 @@ class DatabaseManager:
         self.db_path = str(db_path) if db_path else str(DEFAULT_DB_PATH)
         self.is_memory = self.db_path == ":memory:"
 
-    def get_connection(self) -> sqlite3.Connection:
-        """Create and return a configured SQLite connection. Auto-initializes if empty or missing."""
-        db_file_exists = os.path.exists(self.db_path) if not self.is_memory else True
+    def _create_raw_connection(self) -> sqlite3.Connection:
+        """Create a raw configured SQLite connection without auto-initialization checks."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON;")
+        return conn
+
+    def get_connection(self) -> sqlite3.Connection:
+        """Create and return a configured SQLite connection. Auto-initializes if empty or missing."""
+        conn = self._create_raw_connection()
 
         # Auto-initialize if database was just created or lacks the core portfolios table
         cursor = conn.cursor()
@@ -63,9 +67,7 @@ class DatabaseManager:
         if cursor.fetchone() is None:
             conn.close()
             self.initialize_database()
-            conn = sqlite3.connect(self.db_path)
-            conn.row_factory = sqlite3.Row
-            conn.execute("PRAGMA foreign_keys = ON;")
+            conn = self._create_raw_connection()
         return conn
 
     def initialize_database(self, force_reload: bool = False) -> Dict[str, Any]:
@@ -76,7 +78,7 @@ class DatabaseManager:
         if force_reload and not self.is_memory and os.path.exists(self.db_path):
             os.remove(self.db_path)
 
-        conn = self.get_connection()
+        conn = self._create_raw_connection()
         cursor = conn.cursor()
 
         # Check if already initialized
