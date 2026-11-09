@@ -2,12 +2,28 @@
 ### An Explainable, Evidence-Grounded AI System for Portfolio Analytics & Decision Support
 **PL Capital (Prabhudas Lilladher) — AI Engineering Internship Assessment**
 
+[![Live Deployment](https://img.shields.io/badge/Vercel-Live%20Public%20App-000000?style=flat&logo=vercel&logoColor=white)](https://finance-intelligence-agent.vercel.app)
+[![API Docs](https://img.shields.io/badge/Swagger%20UI-Live%20Docs-85EA2D?style=flat&logo=swagger&logoColor=black)](https://finance-intelligence-agent.vercel.app/docs)
+[![Repo Public](https://img.shields.io/badge/GitHub-Public%20Repository-181717?style=flat&logo=github&logoColor=white)](https://github.com/harshkhamkar26/PL_agent)
 [![Evaluation](https://img.shields.io/badge/Canonical%20Benchmark-10%2F10%20(100%25)-brightgreen.svg)]()
 [![Regression Suite](https://img.shields.io/badge/Regression%20Suite-23%2F23%20(100%25)-brightgreen.svg)]()
 [![Test Suite](https://img.shields.io/badge/Pytest-106%20Passed-brightgreen.svg)]()
 [![SQL Safety](https://img.shields.io/badge/SQL%20Security-AST%20(sqlglot)%20%2B%20C--Authorizer-green.svg)]()
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)]()
-[![Framework](https://img.shields.io/badge/Framework-FastAPI%20%7C%20Streamlit%20%7C%20Web%20Cockpit-orange.svg)]()
+
+---
+
+## 🌐 Live Public Access Links (For Interviewers & Evaluators)
+
+| Platform / Service | Direct URL | Description |
+| :--- | :--- | :--- |
+| 🚀 **Interactive Financial Cockpit** | **[`finance-intelligence-agent.vercel.app`](https://finance-intelligence-agent.vercel.app)** | Full responsive web GUI with dark theme, prompt filter chips, dataset viewer, and live agent telemetry |
+| 📖 **Interactive Swagger API Docs** | **[`finance-intelligence-agent.vercel.app/docs`](https://finance-intelligence-agent.vercel.app/docs)** | Complete OpenAPI 3.0 interactive sandbox with schema models and live endpoint execution |
+| 🩺 **System Health & DB Integrity** | **[`finance-intelligence-agent.vercel.app/health`](https://finance-intelligence-agent.vercel.app/health)** | Live JSON telemetry verifying all 9 SQLite tables, 545 records, and 0 FK violations |
+| 💻 **GitHub Public Repository** | **[`github.com/harshkhamkar26/PL_agent`](https://github.com/harshkhamkar26/PL_agent)** | Full source code, test suites, and audit documentation |
+
+> [!TIP]
+> **Zero Local Setup Needed:** Interviewers can test all 10 canonical evaluation questions, custom natural-language prompts, AST SQL security, and quantitative sector comparisons directly in the browser via the [Live Public Cockpit](https://finance-intelligence-agent.vercel.app).
 
 ---
 
@@ -43,8 +59,8 @@ The **Finance Intelligence Agent (FIA)** transforms natural language investment 
    - *Verified Telemetry* (read-only verification, latency in ms, row scan count).
 8. **Multi-Interface Production Readiness:**
    - Interactive terminal CLI (`main.py` with `--eval` and `--regression`).
-   - Enterprise FastAPI REST API with Swagger UI (`api.py`).
-   - Institutional Streamlit Financial Cockpit (`app.py`).
+   - Enterprise FastAPI REST API with Swagger UI (`api.py` / `app.py`).
+   - Institutional Streamlit Financial Cockpit (`streamlit_app.py`).
    - Interactive Web Cockpit with Railway Aesthetic (`web/index.html`).
 
 ---
@@ -91,8 +107,8 @@ The following 5 verified failure modes were investigated, diagnosed, and permane
 flowchart TD
     subgraph UI ["Interface Deployment Layer"]
         CLI["CLI Agent (main.py)"]
-        WEB["Streamlit Cockpit (app.py)"]
-        API["FastAPI REST API (api.py)"]
+        WEB["Streamlit Cockpit (streamlit_app.py)"]
+        API["FastAPI REST API (api.py / app.py)"]
         HTML["Web Cockpit (web/index.html)"]
     end
 
