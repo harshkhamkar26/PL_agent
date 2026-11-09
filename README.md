@@ -2,14 +2,23 @@
 ### An Explainable, Evidence-Grounded AI System for Portfolio Analytics & Decision Support
 **PL Capital (Prabhudas Lilladher) — AI Engineering Internship Assessment**
 
-[![Live Deployment](https://img.shields.io/badge/Vercel-Live%20Public%20App-000000?style=flat&logo=vercel&logoColor=white)](https://finance-intelligence-agent.vercel.app)
-[![API Docs](https://img.shields.io/badge/Swagger%20UI-Live%20Docs-85EA2D?style=flat&logo=swagger&logoColor=black)](https://finance-intelligence-agent.vercel.app/docs)
-[![Repo Public](https://img.shields.io/badge/GitHub-Public%20Repository-181717?style=flat&logo=github&logoColor=white)](https://github.com/harshkhamkar26/PL_agent)
-[![Evaluation](https://img.shields.io/badge/Canonical%20Benchmark-10%2F10%20(100%25)-brightgreen.svg)]()
-[![Regression Suite](https://img.shields.io/badge/Regression%20Suite-23%2F23%20(100%25)-brightgreen.svg)]()
-[![Test Suite](https://img.shields.io/badge/Pytest-106%20Passed-brightgreen.svg)]()
-[![SQL Safety](https://img.shields.io/badge/SQL%20Security-AST%20(sqlglot)%20%2B%20C--Authorizer-green.svg)]()
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)]()
+[![Live App](https://img.shields.io/badge/Vercel-Live%20Public%20App-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://finance-intelligence-agent.vercel.app)
+[![API Docs](https://img.shields.io/badge/Swagger-Interactive%20API%20Docs-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](https://finance-intelligence-agent.vercel.app/docs)
+[![Repo Public](https://img.shields.io/badge/GitHub-Public%20Repository-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/harshkhamkar26/PL_agent)
+[![Evaluation](https://img.shields.io/badge/Canonical%20Benchmark-10%2F10%20(100%25)-brightgreen.svg?style=for-the-badge)]()
+[![Regression Suite](https://img.shields.io/badge/Regression%20Suite-23%2F23%20(100%25)-brightgreen.svg?style=for-the-badge)]()
+[![Test Suite](https://img.shields.io/badge/Pytest-106%20Passed-brightgreen.svg?style=for-the-badge)]()
+
+---
+
+> ### 🌐 **OFFICIAL PUBLIC DEPLOYMENT ACCESS LINKS**
+>
+> 🚀 **Live Production Application:** **[https://finance-intelligence-agent.vercel.app](https://finance-intelligence-agent.vercel.app)**  
+> 📖 **Interactive Swagger UI (API Docs):** **[https://finance-intelligence-agent.vercel.app/docs](https://finance-intelligence-agent.vercel.app/docs)**  
+> 🩺 **System & Database Health Endpoint:** **[https://finance-intelligence-agent.vercel.app/health](https://finance-intelligence-agent.vercel.app/health)**  
+> 🐙 **Public GitHub Source Repository:** **[https://github.com/harshkhamkar26/PL_agent](https://github.com/harshkhamkar26/PL_agent)**  
+>
+> *⚡ **Immediate Evaluator Access**: 100% cloud-deployed on Vercel serverless edge with zero setup required. Evaluators and interviewers can run natural-language queries, test the 6 dynamic stations, inspect all 9 relational database tables (603 records), and audit quantitative sector exposure calculations directly in the browser!*
 
 ---
 
