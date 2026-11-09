@@ -28,10 +28,20 @@ from tools.exposure_calculator import ExposureCalculator
 from validation.data_reconciler import DataReconciler
 from validation.sql_validator import ALLOWED_TABLES, SQLValidator
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="PL Capital Portfolio Analytics API",
     description="Evidence-Grounded Financial Intelligence Agent REST API with Multi-Tool Routing & Telemetry",
     version="2.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 agent = PortfolioAgent()
@@ -399,6 +409,9 @@ def export_table_csv(table_name: str):
 
 
 if __name__ == "__main__":
+    import os
     import uvicorn
-    print("Starting PL Capital Agent REST API on http://127.0.0.1:8000 ...")
-    uvicorn.run("api:app", host="127.0.0.1", port=8000, reload=False)
+    port = int(os.environ.get("PORT", 8000))
+    host = os.environ.get("HOST", "0.0.0.0")
+    print(f"Starting PL Capital Agent REST API on http://{host}:{port} ...")
+    uvicorn.run("api:app", host=host, port=port, reload=False)

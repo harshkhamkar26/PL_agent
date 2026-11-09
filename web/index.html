@@ -250,7 +250,10 @@
         <a href="#quant-yard" class="hover:text-white transition">Quant Yard</a>
         <a href="#comparator" class="hover:text-white transition">Spread Matrix</a>
         <a href="#results" class="hover:text-white transition">10/10 Results</a>
-        <a href="/docs" target="_blank" class="hover:text-cyan-400 transition">API Docs</a>
+        <a href="http://127.0.0.1:8000/docs" target="_blank" onclick="openApiDocs(event)" class="text-cyan-400 hover:underline transition flex items-center gap-1 font-bold">
+          <i data-lucide="book-open" class="w-3.5 h-3.5 text-cyan-400"></i>
+          <span>API Docs</span>
+        </a>
       </nav>
 
       <!-- Right Action Button -->
@@ -259,7 +262,7 @@
           <i data-lucide="key" class="w-3.5 h-3.5"></i>
           <span class="hidden sm:inline">API KEY</span>
         </button>
-        <a href="#agent-console" class="px-4 py-2 rounded bg-[#ff5722] hover:bg-[#f4511e] text-white font-bold font-mono text-xs uppercase tracking-wider transition flex items-center gap-1.5 shadow-lg shadow-[#ff5722]/30">
+        <a href="#agent-console" onclick="scrollToAgentConsole(event)" class="px-4 py-2 rounded bg-[#ff5722] hover:bg-[#f4511e] text-white font-bold font-mono text-xs uppercase tracking-wider transition flex items-center gap-1.5 shadow-lg shadow-[#ff5722]/30 cursor-pointer">
           <span>LAUNCH AGENT</span>
           <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
         </a>
@@ -370,21 +373,21 @@
         </h2>
       </div>
 
-      <!-- Subtitle Tailored to PL Capital with Colored Dot Bullets & Orange Crosses -->
-      <div class="font-mono text-xs sm:text-sm tracking-[0.14em] sm:tracking-[0.22em] uppercase mt-5 flex flex-wrap items-center gap-2.5 sm:gap-4 select-none">
-        <span class="text-white font-bold flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]"></span>
+      <!-- Ultra Eye-Catching Tagline with Neon Glowing Glass Badges & Multipliers -->
+      <div class="font-mono text-xs sm:text-sm tracking-[0.14em] sm:tracking-[0.20em] uppercase mt-5 flex flex-wrap items-center gap-2.5 sm:gap-3.5 select-none">
+        <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/40 text-cyan-300 font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
           PRABHUDAS LILLADHER
         </span>
-        <span class="text-[#ff5722] font-black text-sm drop-shadow-[0_0_8px_rgba(255,87,34,0.9)]">&times;</span>
-        <span class="text-white font-bold flex items-center gap-2">
+        <span class="text-[#ff5722] font-black text-base drop-shadow-[0_0_10px_rgba(255,87,34,1)]">&times;</span>
+        <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-400/40 text-emerald-300 font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
           <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
-          INSTITUTIONAL PORTFOLIOS
+          13 QUANT PORTFOLIOS
         </span>
-        <span class="text-[#ff5722] font-black text-sm drop-shadow-[0_0_8px_rgba(255,87,34,0.9)]">&times;</span>
-        <span class="text-gray-200 font-bold flex items-center gap-2">
+        <span class="text-[#ff5722] font-black text-base drop-shadow-[0_0_10px_rgba(255,87,34,1)]">&times;</span>
+        <span class="px-3 py-1 rounded-full bg-[#ec4899]/10 border border-[#ec4899]/40 text-pink-300 font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
           <span class="w-2 h-2 rounded-full bg-[#ec4899] shadow-[0_0_8px_#ec4899]"></span>
-          EVIDENCE-GROUNDED FINANCIAL INTELLIGENCE
+          ZERO-HALLUCINATION EVIDENCE AI
         </span>
       </div>
 
@@ -539,11 +542,11 @@
     <!-- Suggested Query Chips Filter -->
     <div class="mb-4">
       <div class="flex flex-wrap gap-2 text-xs font-mono mb-3">
-        <button onclick="filterPromptChips('all')" class="prompt-filter-btn px-3 py-1 rounded bg-white/20 text-white border border-white/20">ALL PROMPTS</button>
-        <button onclick="filterPromptChips('canonical')" class="prompt-filter-btn px-3 py-1 rounded bg-[#16181c] text-gray-300 border border-white/10 hover:bg-white/10">10 CANONICAL EVAL (Q1-Q10)</button>
-        <button onclick="filterPromptChips('agent_chat')" class="prompt-filter-btn px-3 py-1 rounded bg-[#16181c] text-fuchsia-300 border border-fuchsia-500/30 hover:bg-fuchsia-500/10">🤖 AGENT &amp; WELLBEING (GPT CHAT)</button>
-        <button onclick="filterPromptChips('user')" class="prompt-filter-btn px-3 py-1 rounded bg-[#16181c] text-gray-300 border border-white/10 hover:bg-white/10">USER-DEFINED (BONDS, EQUITIES, AUM)</button>
-        <button onclick="filterPromptChips('performance')" class="prompt-filter-btn px-3 py-1 rounded bg-[#16181c] text-gray-300 border border-white/10 hover:bg-white/10">PERFORMANCE &amp; RISK</button>
+        <button type="button" data-cat="all" onclick="filterPromptChips('all', this)" class="prompt-filter-btn px-3 py-1.5 rounded bg-white/20 text-white border border-white/20 font-bold transition">ALL PROMPTS</button>
+        <button type="button" data-cat="canonical" onclick="filterPromptChips('canonical', this)" class="prompt-filter-btn px-3 py-1.5 rounded bg-[#16181c] text-gray-300 border border-white/10 hover:bg-white/10 font-bold transition">10 CANONICAL EVAL (Q1-Q10)</button>
+        <button type="button" data-cat="agent_chat" onclick="filterPromptChips('agent_chat', this)" class="prompt-filter-btn px-3 py-1.5 rounded bg-[#16181c] text-fuchsia-300 border border-fuchsia-500/30 hover:bg-fuchsia-500/10 font-bold transition">🤖 AGENT &amp; WELLBEING (GPT CHAT)</button>
+        <button type="button" data-cat="user" onclick="filterPromptChips('user', this)" class="prompt-filter-btn px-3 py-1.5 rounded bg-[#16181c] text-gray-300 border border-white/10 hover:bg-white/10 font-bold transition">USER-DEFINED (BONDS, EQUITIES, AUM)</button>
+        <button type="button" data-cat="performance" onclick="filterPromptChips('performance', this)" class="prompt-filter-btn px-3 py-1.5 rounded bg-[#16181c] text-gray-300 border border-white/10 hover:bg-white/10 font-bold transition">PERFORMANCE &amp; RISK</button>
       </div>
 
       <div id="prompts-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -552,7 +555,7 @@
     </div>
 
     <!-- Natural Language Agent Input Bar with Dataset Scope Selector -->
-    <div class="train-car-panel rounded-xl p-4 mb-6 font-mono border border-white/10">
+    <div class="train-car-panel rounded-xl p-4 mb-6 font-mono border border-white/10 shadow-xl">
       <!-- Dataset Scope & Active Engine Control Row -->
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 pb-3 border-b border-white/5 text-xs">
         <div class="flex flex-wrap items-center gap-2">
@@ -578,7 +581,7 @@
           <span id="agent-active-engine-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
             LOCAL QUANT OPTIMIZER
           </span>
-          <button onclick="openApiKeyModal()" class="text-cyan-400 hover:underline text-[11px] flex items-center gap-1 ml-1">
+          <button onclick="openApiKeyModal()" class="text-cyan-400 hover:underline text-[11px] flex items-center gap-1 ml-1 cursor-pointer">
             <i data-lucide="settings" class="w-3 h-3"></i> Config
           </button>
         </div>
@@ -590,12 +593,27 @@
           <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#ff5722] font-mono text-sm font-bold">
             PL-Agent&gt;
           </span>
-          <input type="text" id="agent-query-input" placeholder="Type ANY financial question (e.g. 'Show all bonds', 'Which funds hold Apple?', 'AUM above 20 million')..." class="w-full pl-28 pr-4 py-3 bg-[#0d0f12] border border-white/10 rounded-lg text-xs sm:text-sm text-white focus:outline-none focus:border-[#ff5722] transition" onkeydown="if(event.key==='Enter') executeLiveAgent();" />
+          <input type="text" id="agent-query-input" placeholder="Type ANY financial question (e.g. 'Show all bonds', 'Which funds hold Apple?', 'AUM above 20 million')..." class="w-full pl-28 pr-4 py-3 bg-[#0d0f12] border border-white/10 rounded-lg text-xs sm:text-sm text-white focus:outline-none focus:border-[#ff5722] transition" onkeydown="if(event.key==='Enter' || event.keyCode===13){ event.preventDefault(); executeLiveAgent(); }" />
         </div>
-        <button onclick="executeLiveAgent()" class="px-6 py-3 rounded-lg bg-[#ff5722] hover:bg-[#f4511e] text-white font-bold font-mono text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg shadow-[#ff5722]/30 shrink-0">
+        <button type="button" onclick="executeLiveAgent()" class="px-6 py-3 rounded-lg bg-[#ff5722] hover:bg-[#f4511e] text-white font-bold font-mono text-xs uppercase tracking-wider transition flex items-center justify-center gap-2 shadow-lg shadow-[#ff5722]/30 shrink-0 cursor-pointer">
           <i data-lucide="zap" class="w-4 h-4 fill-current"></i>
           <span>DISPATCH AGENT</span>
         </button>
+      </div>
+
+      <!-- 1-Click Interactive Direct Run Option Chips (Image 1 Requirement) -->
+      <div class="mt-3 pt-3 border-t border-white/10 flex flex-wrap items-center gap-2 font-mono text-[11px]">
+        <span class="text-gray-400 font-bold uppercase text-[10px] flex items-center gap-1 mr-1">
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-[#ff5722]"></i>
+          1-CLICK OPTIONS:
+        </span>
+        <button type="button" onclick="quickRunAgent('Show all bonds', 'securities')" class="px-2.5 py-1 rounded bg-[#16181c] hover:bg-[#ff5722]/20 hover:border-[#ff5722]/50 text-gray-200 hover:text-white border border-white/10 text-[11px] transition flex items-center gap-1 cursor-pointer">⚡ Show all bonds</button>
+        <button type="button" onclick="quickRunAgent('Which portfolios hold Apple?', 'holdings')" class="px-2.5 py-1 rounded bg-[#16181c] hover:bg-cyan-500/20 hover:border-cyan-500/50 text-gray-200 hover:text-white border border-white/10 text-[11px] transition flex items-center gap-1 cursor-pointer">⚡ Which funds hold Apple?</button>
+        <button type="button" onclick="quickRunAgent('Show portfolios with AUM greater than 20 million', 'portfolios')" class="px-2.5 py-1 rounded bg-[#16181c] hover:bg-emerald-500/20 hover:border-emerald-500/50 text-gray-200 hover:text-white border border-white/10 text-[11px] transition flex items-center gap-1 cursor-pointer">⚡ AUM above 20 million</button>
+        <button type="button" onclick="quickRunAgent('Which portfolios have the highest Sharpe ratio?', 'portfolio_performance')" class="px-2.5 py-1 rounded bg-[#16181c] hover:bg-amber-500/20 hover:border-amber-500/50 text-gray-200 hover:text-white border border-white/10 text-[11px] transition flex items-center gap-1 cursor-pointer">⚡ Top Sharpe Ratio</button>
+        <button type="button" onclick="quickRunAgent('What are the sector exposures for the Tech Innovation Fund?', 'holdings')" class="px-2.5 py-1 rounded bg-[#16181c] hover:bg-violet-500/20 hover:border-violet-500/50 text-gray-200 hover:text-white border border-white/10 text-[11px] transition flex items-center gap-1 cursor-pointer">⚡ Tech Innovation Exposure</button>
+        <button type="button" onclick="quickRunAgent('What is your current system status and wellbeing?', 'portfolios')" class="px-2.5 py-1 rounded bg-fuchsia-500/10 hover:bg-fuchsia-500/25 hover:border-fuchsia-500/50 text-fuchsia-300 hover:text-white border border-fuchsia-500/30 text-[11px] transition flex items-center gap-1 cursor-pointer">🤖 Agent Wellbeing</button>
+        <button type="button" onclick="quickRunAgent('What is the total Assets Under Management (AUM) for portfolios with high target risk level?', 'portfolios')" class="px-2.5 py-1 rounded bg-[#16181c] hover:bg-emerald-500/20 hover:border-emerald-500/50 text-gray-200 hover:text-white border border-white/10 text-[11px] transition flex items-center gap-1 cursor-pointer">⚡ High-Risk Total AUM</button>
       </div>
     </div>
 
@@ -1111,6 +1129,43 @@
   <!-- JAVASCRIPT APP LOGIC & INTERACTION ENGINE                                -->
   <!-- ========================================================================= -->
   <script>
+    // Universal API Origin & Endpoint Resolver (Works on http://, https://, and local file://)
+    const API_BASE = (window.location.protocol.startsWith('http')) 
+      ? '' 
+      : 'http://127.0.0.1:8000';
+
+    function apiUrl(path) {
+      if (!path) return '';
+      if (path.startsWith('http')) return path;
+      return `${API_BASE}${path}`;
+    }
+
+    function openApiDocs(e) {
+      if (e) e.preventDefault();
+      const docsUrl = (window.location.protocol.startsWith('http')) 
+        ? `${window.location.origin}/docs` 
+        : 'http://127.0.0.1:8000/docs';
+      window.open(docsUrl, '_blank');
+    }
+
+    function scrollToAgentConsole(e) {
+      if (e) e.preventDefault();
+      scrollToId('agent-console');
+      setTimeout(() => {
+        const inp = document.getElementById('agent-query-input');
+        if (inp) inp.focus();
+      }, 350);
+    }
+
+    function quickRunAgent(promptText, targetDs = 'all') {
+      playSound('click');
+      const inputEl = document.getElementById('agent-query-input');
+      if (inputEl) inputEl.value = promptText;
+      const scopeEl = document.getElementById('agent-dataset-scope');
+      if (scopeEl && targetDs) scopeEl.value = targetDs;
+      executeLiveAgent();
+    }
+
     // Global State
     let currentAgentPrimaryDataset = 'portfolios';
     let activeAgentData = null;
@@ -1183,7 +1238,7 @@
     // =========================================================================
     async function fetchApiKeyStatus() {
       try {
-        const res = await fetch('/api/v1/config/key/status');
+        const res = await fetch(apiUrl('/api/v1/config/key/status'));
         if (res.ok) {
           const d = await res.json();
           updateApiKeyUI(d);
@@ -1259,7 +1314,7 @@
       fb.innerHTML = '<div class="flex items-center gap-2"><div class="w-3 h-3 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div> Handshaking with Google Gemini API...</div>';
 
       try {
-        const res = await fetch('/api/v1/config/key', {
+        const res = await fetch(apiUrl('/api/v1/config/key'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ api_key: key, save_to_env: false })
@@ -1283,7 +1338,7 @@
       playSound('click');
       const key = document.getElementById('input-gemini-key').value.trim();
       try {
-        const res = await fetch('/api/v1/config/key', {
+        const res = await fetch(apiUrl('/api/v1/config/key'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ api_key: key, save_to_env: true })
@@ -1306,7 +1361,7 @@
     async function clearApiKey() {
       playSound('click');
       try {
-        await fetch('/api/v1/config/key', {
+        await fetch(apiUrl('/api/v1/config/key'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ api_key: "", save_to_env: true })
@@ -1386,30 +1441,41 @@
       { id: "BM1", cat: "benchmarks", ds: "benchmarks", title: "Market Reference Benchmarks", prompt: "Show all benchmark indices and symbols" },
     ];
 
-    function renderPromptChips(filter = 'all') {
+    let currentPromptCategory = 'all';
+
+    function renderPromptChips() {
       const container = document.getElementById('prompts-grid');
+      if (!container) return;
       container.innerHTML = '';
       
-      const filtered = PROMPTS_LIST.filter(item => {
-        if (filter === 'all') return true;
-        if (filter === 'canonical') return item.cat === 'canonical';
-        if (filter === 'agent_chat') return item.cat === 'agent_chat';
-        if (filter === 'user') return item.cat !== 'canonical' && item.cat !== 'agent_chat';
-        if (filter === 'performance') return item.cat === 'portfolio_performance' || item.cat === 'risk_metrics';
-        return item.ds === filter || item.cat === filter;
+      const targetDs = document.getElementById('agent-dataset-scope') ? document.getElementById('agent-dataset-scope').value : 'all';
+
+      let items = PROMPTS_LIST.filter(item => {
+        if (currentPromptCategory === 'canonical') return item.cat === 'canonical';
+        if (currentPromptCategory === 'agent_chat') return item.cat === 'agent_chat';
+        if (currentPromptCategory === 'user') return item.cat !== 'canonical' && item.cat !== 'agent_chat';
+        if (currentPromptCategory === 'performance') return item.cat === 'portfolio_performance' || item.cat === 'risk_metrics';
+        if (currentPromptCategory !== 'all') return item.cat === currentPromptCategory || item.ds === currentPromptCategory;
+        return true;
       });
 
+      // Dataset scoping if user is on 'all' categories
+      if (targetDs !== 'all' && currentPromptCategory === 'all') {
+        const scoped = items.filter(it => it.ds === targetDs);
+        if (scoped.length > 0) items = scoped;
+      }
+
+      // Safe fallback: never let the prompt list be empty
+      if (!items || items.length === 0) {
+        items = PROMPTS_LIST;
+      }
+
       // Limit to max 12 items for clean display
-      filtered.slice(0, 12).forEach(item => {
+      items.slice(0, 12).forEach(item => {
         const div = document.createElement('div');
-        div.className = "train-car-panel p-3 rounded-lg cursor-pointer hover:border-[#ff5722]/50 transition flex flex-col justify-between";
+        div.className = "train-car-panel p-3 rounded-lg cursor-pointer hover:border-[#ff5722]/60 hover:bg-white/5 transition flex flex-col justify-between shadow-md group";
         div.onclick = () => {
-          document.getElementById('agent-query-input').value = item.prompt;
-          if (item.ds) {
-            const scopeSel = document.getElementById('agent-dataset-scope');
-            if (scopeSel) scopeSel.value = item.ds;
-          }
-          executeLiveAgent();
+          quickRunAgent(item.prompt, item.ds);
         };
 
         const tagClass = item.cat === 'canonical' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' :
@@ -1420,31 +1486,42 @@
                          'text-orange-400 bg-orange-500/10 border-orange-500/30';
 
         div.innerHTML = `
-          <div class="flex items-center justify-between gap-2 mb-1">
+          <div class="flex items-center justify-between gap-2 mb-1.5">
             <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border ${tagClass} font-bold">${item.id} // ${(item.ds || item.cat).toUpperCase()}</span>
             <span class="text-[10px] font-mono text-gray-400">${item.title}</span>
           </div>
-          <p class="text-xs text-gray-200 font-sans line-clamp-2">${item.prompt}</p>
+          <p class="text-xs text-gray-200 font-sans line-clamp-2 group-hover:text-white transition">${item.prompt}</p>
+          <div class="mt-2 text-[10px] font-mono text-[#ff5722] flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
+            <span>⚡ Click to Execute</span> &rarr;
+          </div>
         `;
         container.appendChild(div);
       });
     }
 
-    function filterPromptChips(cat) {
+    function filterPromptChips(cat, btn) {
       playSound('click');
+      currentPromptCategory = cat;
       document.querySelectorAll('.prompt-filter-btn').forEach(b => {
-        b.classList.remove('bg-white/20', 'text-white');
-        b.classList.add('bg-[#16181c]', 'text-gray-300');
+        b.classList.remove('bg-white/20', 'text-white', 'border-white/20');
+        b.classList.add('bg-[#16181c]', 'text-gray-300', 'border-white/10');
       });
-      event.target.classList.remove('bg-[#16181c]', 'text-gray-300');
-      event.target.classList.add('bg-white/20', 'text-white');
-      renderPromptChips(cat);
+      if (btn) {
+        btn.classList.remove('bg-[#16181c]', 'text-gray-300', 'border-white/10');
+        btn.classList.add('bg-white/20', 'text-white', 'border-white/20');
+      } else {
+        const matchingBtn = document.querySelector(`.prompt-filter-btn[data-cat="${cat}"]`);
+        if (matchingBtn) {
+          matchingBtn.classList.remove('bg-[#16181c]', 'text-gray-300', 'border-white/10');
+          matchingBtn.classList.add('bg-white/20', 'text-white', 'border-white/20');
+        }
+      }
+      renderPromptChips();
     }
 
     function onDatasetScopeChanged() {
       playSound('click');
-      const scope = document.getElementById('agent-dataset-scope').value;
-      renderPromptChips(scope);
+      renderPromptChips();
     }
 
     // =========================================================================
@@ -1469,7 +1546,7 @@
       };
 
       try {
-        const res = await fetch('/api/v1/query', {
+        const res = await fetch(apiUrl('/api/v1/query'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -1704,7 +1781,7 @@
 
     async function initHoneycombStudio() {
       try {
-        const res = await fetch('/api/v1/dataset/tables');
+        const res = await fetch(apiUrl('/api/v1/dataset/tables'));
         if (res.ok) {
           const d = await res.json();
           allDatasetTables = d.tables || [];
@@ -1747,7 +1824,7 @@
       currentSelectedTable = tableName;
       renderHoneycombCells();
 
-      document.getElementById('btn-export-active-csv').href = `/api/v1/dataset/table/${tableName}/csv`;
+      document.getElementById('btn-export-active-csv').href = apiUrl(`/api/v1/dataset/table/${tableName}/csv`);
       document.getElementById('active-table-heading').innerText = `TABLE: ${tableName}`;
 
       const tMeta = allDatasetTables.find(t => t.table_name === tableName);
@@ -1761,7 +1838,7 @@
 
       try {
         const url = `/api/v1/dataset/table/${tableName}?limit=50${search ? '&search=' + encodeURIComponent(search) : ''}`;
-        const res = await fetch(url);
+        const res = await fetch(apiUrl(url));
         if (res.ok) {
           const tData = await res.json();
           renderGridHTML(tData);
@@ -1823,7 +1900,7 @@
       out.innerHTML = '<div class="text-gray-400">AST validating and executing query...</div>';
 
       try {
-        const res = await fetch('/api/v1/dataset/sql', {
+        const res = await fetch(apiUrl('/api/v1/dataset/sql'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sql })
@@ -1896,7 +1973,7 @@
     async function fetchQuantExposure(portId) {
       playSound('click');
       try {
-        const res = await fetch(`/api/v1/exposure/${encodeURIComponent(portId)}`);
+        const res = await fetch(apiUrl(`/api/v1/exposure/${encodeURIComponent(portId)}`));
         if (res.ok) {
           const d = await res.json();
           document.getElementById('yard-equity-pct').innerText = `${d.total_equity_exposure_pct.toFixed(1)}%`;
@@ -1967,7 +2044,7 @@
       const f2 = document.getElementById('spread-fund-b').value;
 
       try {
-        const res = await fetch(`/api/v1/compare/${encodeURIComponent(f1)}/${encodeURIComponent(f2)}`);
+        const res = await fetch(apiUrl(`/api/v1/compare/${encodeURIComponent(f1)}/${encodeURIComponent(f2)}`));
         if (res.ok) {
           const d = await res.json();
           const tbody = document.getElementById('spread-matrix-tbody');
@@ -2026,7 +2103,7 @@
       const lbl = document.getElementById('lbl-eval-text');
       lbl.innerText = "RUNNING 10/10 EVALUATION...";
       try {
-        const res = await fetch('/api/v1/evaluate');
+        const res = await fetch(apiUrl('/api/v1/evaluate'));
         if (res.ok) {
           const d = await res.json();
           playSound('success');
@@ -2068,11 +2145,11 @@
     async function initEverything() {
       lucide.createIcons();
       fetchApiKeyStatus();
-      renderPromptChips('all');
+      renderPromptChips();
 
       // Fetch Portfolios
       try {
-        const res = await fetch('/api/v1/portfolios');
+        const res = await fetch(apiUrl('/api/v1/portfolios'));
         if (res.ok) {
           const d = await res.json();
           allPortfoliosList = d.portfolios || [];
