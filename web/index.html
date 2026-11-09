@@ -169,7 +169,13 @@
       <span>ACCURACY: <strong class="text-emerald-400">10/10 (100.0%)</strong></span>
       <span>LATENCY: <strong class="text-cyan-400">&lt; 2.0 ms</strong></span>
       <span>SECURITY: <strong class="text-amber-400">AST READ-ONLY</strong></span>
-      
+
+      <!-- API Key & AI Engine Status Pill -->
+      <button onclick="openApiKeyModal()" id="top-apikey-pill" class="px-2 py-0.5 rounded bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5 transition font-bold cursor-pointer">
+        <i data-lucide="key" class="w-3 h-3 text-cyan-400"></i>
+        <span id="top-apikey-label">AI ENGINE: CONFIG</span>
+      </button>
+
       <!-- Audio FX Toggle Button -->
       <button onclick="toggleAudio()" id="sound-btn" class="px-2 py-0.5 rounded bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 flex items-center gap-1 transition">
         <i data-lucide="volume-2" id="sound-icon" class="w-3 h-3 text-emerald-400"></i>
@@ -209,7 +215,11 @@
       </nav>
 
       <!-- Right Action Button -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="openApiKeyModal()" class="px-3 py-2 rounded bg-white/5 hover:bg-white/10 text-cyan-300 font-mono text-xs border border-white/20 transition flex items-center gap-1.5">
+          <i data-lucide="key" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">API KEY</span>
+        </button>
         <a href="#agent-console" class="px-4 py-2 rounded bg-[#ff5722] hover:bg-[#f4511e] text-white font-bold font-mono text-xs uppercase tracking-wider transition flex items-center gap-1.5 shadow-lg shadow-[#ff5722]/30">
           <span>LAUNCH AGENT</span>
           <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
@@ -408,8 +418,40 @@
       </div>
     </div>
 
-    <!-- Natural Language Agent Input Bar -->
-    <div class="train-car-panel rounded-xl p-4 mb-6 font-mono">
+    <!-- Natural Language Agent Input Bar with Dataset Scope Selector -->
+    <div class="train-car-panel rounded-xl p-4 mb-6 font-mono border border-white/10">
+      <!-- Dataset Scope & Active Engine Control Row -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3 pb-3 border-b border-white/5 text-xs">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-gray-400 font-bold uppercase text-[11px] flex items-center gap-1">
+            <i data-lucide="database" class="w-3.5 h-3.5 text-cyan-400"></i>
+            TARGET DATASET:
+          </span>
+          <select id="agent-dataset-scope" onchange="onDatasetScopeChanged()" class="bg-[#0d0f12] text-white border border-white/20 px-3 py-1.5 rounded-lg focus:outline-none focus:border-[#ff5722] text-xs font-mono font-bold cursor-pointer">
+            <option value="all">🌐 ALL DATASETS (Auto-Detect Engine)</option>
+            <option value="portfolios">📁 PORTFOLIOS (13 Funds)</option>
+            <option value="securities">📊 SECURITIES (30 Assets)</option>
+            <option value="holdings">💼 HOLDINGS (95 Positions)</option>
+            <option value="historical_prices">📈 HISTORICAL PRICES (330 Quotes)</option>
+            <option value="portfolio_performance">⚡ PORTFOLIO PERFORMANCE (44 Records)</option>
+            <option value="risk_metrics">🛡️ RISK METRICS (44 Quant Records)</option>
+            <option value="transactions">💳 TRANSACTIONS (24 Trade Logs)</option>
+            <option value="sectors">🏢 SECTORS (10 GICS Sectors)</option>
+            <option value="benchmarks">🎯 BENCHMARKS (13 Market Indices)</option>
+          </select>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-gray-400 text-[11px]">ACTIVE ENGINE:</span>
+          <span id="agent-active-engine-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            LOCAL QUANT OPTIMIZER
+          </span>
+          <button onclick="openApiKeyModal()" class="text-cyan-400 hover:underline text-[11px] flex items-center gap-1 ml-1">
+            <i data-lucide="settings" class="w-3 h-3"></i> Config
+          </button>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
       <div class="flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
           <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#ff5722] font-mono text-sm font-bold">
@@ -438,7 +480,7 @@
           <i data-lucide="bot" class="w-6 h-6"></i>
         </div>
         <h4 class="text-base font-bold text-white uppercase tracking-wider">Agent Ready to Process Natural Language</h4>
-        <p class="text-xs text-gray-400 max-w-md mx-auto">Select any prompt chip above or type any custom investment question to view the full ReAct reasoning trace and evidence ledger.</p>
+        <p class="text-xs text-gray-400 max-w-md mx-auto">Select any prompt chip above or type any custom investment question to view the full ReAct reasoning trace, dataset link, and evidence ledger.</p>
       </div>
 
       <!-- Active Result State -->
@@ -453,6 +495,30 @@
             <h3 id="agent-answer-text" class="text-xl sm:text-2xl font-black text-white mt-2 tracking-tight">Direct Answer</h3>
           </div>
           <div id="agent-hud-telemetry" class="flex flex-wrap gap-2 text-xs"></div>
+        </div>
+
+        <!-- Direct Dataset Link & Action Controls -->
+        <div class="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-lg bg-[#0d0f12] border border-white/10">
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-gray-400 font-mono">PRIMARY DATASET:</span>
+            <span id="agent-primary-dataset-badge" class="px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-xs font-mono font-bold uppercase">
+              PORTFOLIOS
+            </span>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-view-underlying-dataset" onclick="jumpToDatasetStudio()" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 font-mono text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+              <i data-lucide="table" class="w-3.5 h-3.5 text-cyan-300"></i>
+              <span id="label-view-dataset">VIEW DATASET IN STUDIO ↗</span>
+            </button>
+            <button id="btn-run-in-sandbox" onclick="jumpToSqlSandbox()" class="px-3 py-1.5 rounded-lg bg-[#a3e635]/15 hover:bg-[#a3e635]/25 text-[#a3e635] border border-[#a3e635]/30 font-mono text-xs font-bold transition flex items-center gap-1.5">
+              <i data-lucide="terminal" class="w-3.5 h-3.5"></i>
+              <span>RUN IN SQL SANDBOX ↗</span>
+            </button>
+            <button onclick="copyCurrentAgentSQL()" class="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 font-mono text-xs transition flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+              <span>COPY SQL</span>
+            </button>
+          </div>
         </div>
 
         <!-- ReAct 4-Step Reasoning Pipeline -->
@@ -841,9 +907,81 @@
   </footer>
 
   <!-- ========================================================================= -->
+  <!-- API KEY & AUTONOMOUS LLM CONFIGURATION MODAL                             -->
+  <!-- ========================================================================= -->
+  <div id="modal-apikey" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#16181c] border border-white/20 rounded-2xl max-w-lg w-full p-6 shadow-2xl font-mono text-xs relative space-y-4">
+      <div class="flex justify-between items-center border-b border-white/10 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+          <h3 class="text-base font-bold text-white uppercase tracking-wider">AI Intelligence Provider & API Key</h3>
+        </div>
+        <button onclick="closeApiKeyModal()" class="text-gray-400 hover:text-white transition cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Current Engine Status -->
+      <div class="p-3.5 rounded-xl bg-[#0d0f12] border border-white/10 space-y-2">
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">ACTIVE AI ENGINE:</span>
+          <span id="modal-engine-status" class="font-bold text-emerald-400">CHECKING...</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">CONFIGURED KEY:</span>
+          <span id="modal-masked-key" class="text-gray-300 font-mono">None (Local Mode)</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <span class="text-gray-400">PRIMARY LLM MODEL:</span>
+          <span class="text-cyan-400 font-mono">gemini-2.5-flash (with 2.0 fallback)</span>
+        </div>
+      </div>
+
+      <!-- Key Input -->
+      <div class="space-y-1.5">
+        <label class="text-gray-300 font-bold block">Enter Google Gemini API Key:</label>
+        <div class="relative">
+          <input type="password" id="input-gemini-key" placeholder="AIzaSy..." class="w-full pl-3 pr-10 py-2.5 bg-[#0d0f12] border border-white/20 rounded-lg text-white font-mono focus:outline-none focus:border-cyan-400" />
+          <button type="button" onclick="toggleKeyVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white cursor-pointer">
+            <i data-lucide="eye" id="icon-eye-key" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p class="text-[11px] text-gray-500">
+          Get a free Google Gemini key from <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-cyan-400 hover:underline">Google AI Studio ↗</a>. Unlocks open-ended natural language queries on any dataset.
+        </p>
+      </div>
+
+      <!-- Verification Test Output -->
+      <div id="modal-key-feedback" class="hidden p-3 rounded-lg text-[11px] border"></div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-2 pt-2 border-t border-white/10">
+        <button onclick="testApiKeyConnection()" id="btn-test-key" class="flex-1 py-2.5 px-3 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 font-bold transition flex items-center justify-center gap-1.5 cursor-pointer">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+          <span>TEST CONNECTION</span>
+        </button>
+        <button onclick="saveApiKey()" id="btn-save-key" class="flex-1 py-2.5 px-3 rounded-lg bg-[#ff5722] hover:bg-[#f4511e] text-white font-bold transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#ff5722]/30 cursor-pointer">
+          <i data-lucide="save" class="w-3.5 h-3.5"></i>
+          <span>SAVE & ACTIVATE</span>
+        </button>
+      </div>
+
+      <div class="text-center pt-1">
+        <button onclick="clearApiKey()" class="text-rose-400 hover:underline text-[11px] cursor-pointer">
+          Disconnect Key & Use Local Deterministic Engine (&lt; 2ms)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- JAVASCRIPT APP LOGIC & INTERACTION ENGINE                                -->
   <!-- ========================================================================= -->
   <script>
+    // Global State
+    let currentAgentPrimaryDataset = 'portfolios';
+    let activeAgentData = null;
+
     // Audio FX Synthesis
     let audioCtx = null;
     let audioEnabled = true;
@@ -897,45 +1035,238 @@
       if (el) el.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Prompts Database
+    // =========================================================================
+    // API KEY CONFIGURATION & HANDSHAKE
+    // =========================================================================
+    async function fetchApiKeyStatus() {
+      try {
+        const res = await fetch('/api/v1/config/key/status');
+        if (res.ok) {
+          const d = await res.json();
+          updateApiKeyUI(d);
+        }
+      } catch (e) {}
+    }
+
+    function updateApiKeyUI(data) {
+      const pillText = document.getElementById('top-apikey-label');
+      const engineBadge = document.getElementById('agent-active-engine-badge');
+      const modalStatus = document.getElementById('modal-engine-status');
+      const modalMasked = document.getElementById('modal-masked-key');
+
+      if (data.configured) {
+        if (pillText) pillText.innerText = `AI: GEMINI (${data.masked_key})`;
+        if (engineBadge) {
+          engineBadge.innerText = `GOOGLE GEMINI (${data.model})`;
+          engineBadge.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30";
+        }
+        if (modalStatus) {
+          modalStatus.innerText = `ONLINE (Google Gemini ${data.model})`;
+          modalStatus.className = "font-bold text-cyan-400";
+        }
+        if (modalMasked) modalMasked.innerText = data.masked_key;
+      } else {
+        if (pillText) pillText.innerText = `AI ENGINE: LOCAL HYBRID`;
+        if (engineBadge) {
+          engineBadge.innerText = `LOCAL QUANT OPTIMIZER (< 2ms)`;
+          engineBadge.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+        }
+        if (modalStatus) {
+          modalStatus.innerText = `LOCAL DETERMINISTIC (< 2ms)`;
+          modalStatus.className = "font-bold text-emerald-400";
+        }
+        if (modalMasked) modalMasked.innerText = "No API key (Running 100% Offline)";
+      }
+    }
+
+    function openApiKeyModal() {
+      playSound('click');
+      document.getElementById('modal-apikey').classList.remove('hidden');
+      const savedKey = localStorage.getItem('gemini_api_key');
+      if (savedKey) {
+        document.getElementById('input-gemini-key').value = savedKey;
+      }
+      fetchApiKeyStatus();
+    }
+
+    function closeApiKeyModal() {
+      playSound('click');
+      document.getElementById('modal-apikey').classList.add('hidden');
+    }
+
+    function toggleKeyVisibility() {
+      const inp = document.getElementById('input-gemini-key');
+      const ico = document.getElementById('icon-eye-key');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        ico.setAttribute('data-lucide', 'eye-off');
+      } else {
+        inp.type = 'password';
+        ico.setAttribute('data-lucide', 'eye');
+      }
+      lucide.createIcons();
+    }
+
+    async function testApiKeyConnection() {
+      playSound('click');
+      const key = document.getElementById('input-gemini-key').value.trim();
+      const fb = document.getElementById('modal-key-feedback');
+      fb.classList.remove('hidden');
+      fb.className = "p-3 rounded-lg text-[11px] border bg-cyan-500/10 border-cyan-500/30 text-cyan-300";
+      fb.innerHTML = '<div class="flex items-center gap-2"><div class="w-3 h-3 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div> Handshaking with Google Gemini API...</div>';
+
+      try {
+        const res = await fetch('/api/v1/config/key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: key, save_to_env: false })
+        });
+        const d = await res.json();
+        if (d.success) {
+          playSound('success');
+          fb.className = "p-3 rounded-lg text-[11px] border bg-emerald-500/10 border-emerald-500/30 text-emerald-300";
+          fb.innerHTML = `✓ ${d.message} Model: <strong>${d.model}</strong> (${d.latency_ms} ms). Live connection verified!`;
+        } else {
+          fb.className = "p-3 rounded-lg text-[11px] border bg-rose-500/10 border-rose-500/30 text-rose-300";
+          fb.innerHTML = `✗ Verification Failed: ${d.error || 'Invalid API key'}`;
+        }
+      } catch (e) {
+        fb.className = "p-3 rounded-lg text-[11px] border bg-rose-500/10 border-rose-500/30 text-rose-300";
+        fb.innerHTML = `✗ Connection error: ${e.message}`;
+      }
+    }
+
+    async function saveApiKey() {
+      playSound('click');
+      const key = document.getElementById('input-gemini-key').value.trim();
+      try {
+        const res = await fetch('/api/v1/config/key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: key, save_to_env: true })
+        });
+        const d = await res.json();
+        if (d.success) {
+          localStorage.setItem('gemini_api_key', key);
+          playSound('success');
+          fetchApiKeyStatus();
+          closeApiKeyModal();
+          alert("Google Gemini API key activated successfully!");
+        } else {
+          alert("Could not activate key: " + (d.error || "Verification failed"));
+        }
+      } catch (e) {
+        alert("Error saving key: " + e.message);
+      }
+    }
+
+    async function clearApiKey() {
+      playSound('click');
+      try {
+        await fetch('/api/v1/config/key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ api_key: "", save_to_env: true })
+        });
+        localStorage.removeItem('gemini_api_key');
+        document.getElementById('input-gemini-key').value = '';
+        fetchApiKeyStatus();
+        closeApiKeyModal();
+        alert("Reverted to local deterministic engine (< 2ms).");
+      } catch (e) {}
+    }
+
+    // =========================================================================
+    // PROMPTS DATABASE & DATASET SCOPING
+    // =========================================================================
     const PROMPTS_LIST = [
-      { id: "Q1", cat: "canonical", title: "Total Portfolio Count", prompt: "How many portfolios do we have in total?" },
-      { id: "Q2", cat: "canonical", title: "Active Portfolios", prompt: "What are the names of all active portfolios?" },
-      { id: "Q3", cat: "canonical", title: "Tech Sector Equities", prompt: "Which securities are in the Technology sector?" },
-      { id: "Q4", cat: "canonical", title: "High-Risk AUM", prompt: "What is the total Assets Under Management (AUM) for portfolios with high target risk level?" },
-      { id: "Q5", cat: "canonical", title: "Top 5 Holdings by Cost", prompt: "Show me the top 5 holdings by cost basis in the Growth Equity Fund" },
-      { id: "Q6", cat: "canonical", title: "Avg Price by Sector", prompt: "What is the average current price of securities in each sector?" },
-      { id: "Q7", cat: "canonical", title: "Tech Allocation vs Total", prompt: "For each portfolio, show the total value of Technology sector holdings and what percentage it represents of the total portfolio value" },
-      { id: "Q8", cat: "canonical", title: "Multi-Sector Diversification", prompt: "Find portfolios that have holdings in more than 5 different sectors and show their diversification metrics" },
-      { id: "Q9", cat: "canonical", title: "Tech Innovation Sector Exposure", prompt: "What are the sector exposures for the Tech Innovation Fund?" },
-      { id: "Q10", cat: "canonical", title: "International Equity Exposure", prompt: "Calculate the sector exposure breakdown for international equity" },
-      { id: "U1", cat: "user", title: "All Bond Instruments", prompt: "Show all bonds" },
-      { id: "U2", cat: "user", title: "Holdings of Apple (AAPL)", prompt: "Which portfolios hold Apple?" },
-      { id: "U3", cat: "user", title: "Holdings of NVIDIA (NVDA)", prompt: "Who holds NVDA?" },
-      { id: "U4", cat: "user", title: "AUM Greater than 20M", prompt: "Show portfolios with AUM greater than 20 million" },
-      { id: "U5", cat: "performance", title: "Top Sharpe Ratio Portfolios", prompt: "Which portfolios have the highest Sharpe ratio?" },
-      { id: "U6", cat: "performance", title: "Lowest Systematic Risk", prompt: "Show portfolios with the lowest beta" }
+      // Canonical Evaluation Benchmark Questions (Q1-Q10)
+      { id: "Q1", cat: "canonical", ds: "portfolios", title: "Total Portfolio Count", prompt: "How many portfolios do we have in total?" },
+      { id: "Q2", cat: "canonical", ds: "portfolios", title: "Active Portfolios", prompt: "What are the names of all active portfolios?" },
+      { id: "Q3", cat: "canonical", ds: "securities", title: "Tech Sector Equities", prompt: "Which securities are in the Technology sector?" },
+      { id: "Q4", cat: "canonical", ds: "portfolios", title: "High-Risk AUM", prompt: "What is the total Assets Under Management (AUM) for portfolios with high target risk level?" },
+      { id: "Q5", cat: "canonical", ds: "holdings", title: "Top 5 Holdings by Cost", prompt: "Show me the top 5 holdings by cost basis in the Growth Equity Fund" },
+      { id: "Q6", cat: "canonical", ds: "securities", title: "Avg Price by Sector", prompt: "What is the average current price of securities in each sector?" },
+      { id: "Q7", cat: "canonical", ds: "holdings", title: "Tech Allocation vs Total", prompt: "For each portfolio, show the total value of Technology sector holdings and what percentage it represents of the total portfolio value" },
+      { id: "Q8", cat: "canonical", ds: "holdings", title: "Multi-Sector Diversification", prompt: "Find portfolios that have holdings in more than 5 different sectors and show their diversification metrics" },
+      { id: "Q9", cat: "canonical", ds: "holdings", title: "Tech Innovation Sector Exposure", prompt: "What are the sector exposures for the Tech Innovation Fund?" },
+      { id: "Q10", cat: "canonical", ds: "holdings", title: "International Equity Exposure", prompt: "Calculate the sector exposure breakdown for international equity" },
+
+      // Datasets: Transactions
+      { id: "TX1", cat: "transactions", ds: "transactions", title: "Recent Buy Orders", prompt: "Show recent buy orders" },
+      { id: "TX2", cat: "transactions", ds: "transactions", title: "Recent Sell Orders", prompt: "Show recent sell order executions" },
+      { id: "TX3", cat: "transactions", ds: "transactions", title: "Trades in Growth Equity", prompt: "Show transaction executions in Growth Equity Fund" },
+      { id: "TX4", cat: "transactions", ds: "transactions", title: "Trading Fees Audit", prompt: "What are the total fees collected across all transactions?" },
+
+      // Datasets: Historical Prices
+      { id: "HP1", cat: "historical_prices", ds: "historical_prices", title: "Apple (AAPL) Quotes", prompt: "Show daily price quotes for AAPL" },
+      { id: "HP2", cat: "historical_prices", ds: "historical_prices", title: "Top Trading Volume", prompt: "Show securities trading sessions with highest volume" },
+      { id: "HP3", cat: "historical_prices", ds: "historical_prices", title: "NVIDIA (NVDA) Prices", prompt: "Show pricing history for NVDA" },
+
+      // Datasets: Portfolio Performance
+      { id: "PF1", cat: "portfolio_performance", ds: "portfolio_performance", title: "Top Sharpe Portfolios", prompt: "Which portfolios have the highest Sharpe ratio?" },
+      { id: "PF2", cat: "portfolio_performance", ds: "portfolio_performance", title: "Lowest Drawdown Funds", prompt: "Show portfolios with the lowest maximum drawdown" },
+      { id: "PF3", cat: "portfolio_performance", ds: "portfolio_performance", title: "1-Year Return Rankings", prompt: "Rank portfolios by 1-year total return" },
+
+      // Datasets: Risk Metrics
+      { id: "RM1", cat: "risk_metrics", ds: "risk_metrics", title: "Lowest Systematic Beta", prompt: "Show portfolios with the lowest beta" },
+      { id: "RM2", cat: "risk_metrics", ds: "risk_metrics", title: "Sortino Downside Return", prompt: "Rank portfolios by Sortino ratio" },
+      { id: "RM3", cat: "risk_metrics", ds: "risk_metrics", title: "Value at Risk (VaR 95)", prompt: "Show portfolio risk metrics sorted by VaR 95" },
+
+      // Datasets: Securities & Bonds
+      { id: "SC1", cat: "securities", ds: "securities", title: "All Bond Instruments", prompt: "Show all bonds" },
+      { id: "SC2", cat: "securities", ds: "securities", title: "Top Market Cap Equities", prompt: "Show top 5 stocks ranked by market cap" },
+      { id: "SC3", cat: "securities", ds: "securities", title: "Equities on NASDAQ", prompt: "List securities traded on the NASDAQ exchange" },
+
+      // Datasets: Holdings
+      { id: "HD1", cat: "holdings", ds: "holdings", title: "Who Holds Apple (AAPL)?", prompt: "Which portfolios hold Apple?" },
+      { id: "HD2", cat: "holdings", ds: "holdings", title: "Who Holds NVIDIA (NVDA)?", prompt: "Who holds NVDA?" },
+      { id: "HD3", cat: "holdings", ds: "holdings", title: "Largest Portfolio Positions", prompt: "Show largest holdings across all portfolios" },
+
+      // Datasets: Portfolios
+      { id: "P1", cat: "portfolios", ds: "portfolios", title: "AUM Greater than 20M", prompt: "Show portfolios with AUM greater than 20 million" },
+      { id: "P2", cat: "portfolios", ds: "portfolios", title: "Passive Index Funds", prompt: "List all passive index portfolios" },
+      { id: "P3", cat: "portfolios", ds: "portfolios", title: "Low Target Risk Funds", prompt: "Show all portfolios with low target risk level" },
+
+      // Datasets: Sectors & Benchmarks
+      { id: "ST1", cat: "sectors", ds: "sectors", title: "All Industry Sectors", prompt: "List all sectors and industry groups" },
+      { id: "BM1", cat: "benchmarks", ds: "benchmarks", title: "Market Reference Benchmarks", prompt: "Show all benchmark indices and symbols" },
     ];
 
     function renderPromptChips(filter = 'all') {
       const container = document.getElementById('prompts-grid');
       container.innerHTML = '';
-      PROMPTS_LIST.forEach(item => {
-        if (filter !== 'all' && item.cat !== filter) return;
+      
+      const filtered = PROMPTS_LIST.filter(item => {
+        if (filter === 'all') return true;
+        if (filter === 'canonical') return item.cat === 'canonical';
+        if (filter === 'user') return item.cat !== 'canonical';
+        if (filter === 'performance') return item.cat === 'portfolio_performance' || item.cat === 'risk_metrics';
+        return item.ds === filter || item.cat === filter;
+      });
+
+      // Limit to max 12 items for clean display
+      filtered.slice(0, 12).forEach(item => {
         const div = document.createElement('div');
         div.className = "train-car-panel p-3 rounded-lg cursor-pointer hover:border-[#ff5722]/50 transition flex flex-col justify-between";
         div.onclick = () => {
           document.getElementById('agent-query-input').value = item.prompt;
+          if (item.ds) {
+            const scopeSel = document.getElementById('agent-dataset-scope');
+            if (scopeSel) scopeSel.value = item.ds;
+          }
           executeLiveAgent();
         };
 
         const tagClass = item.cat === 'canonical' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30' :
-                         item.cat === 'user' ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' :
-                         'text-rose-400 bg-rose-500/10 border-rose-500/30';
+                         item.cat === 'transactions' ? 'text-cyan-400 bg-cyan-500/10 border-cyan-500/30' :
+                         item.cat === 'historical_prices' ? 'text-amber-400 bg-amber-500/10 border-amber-500/30' :
+                         item.cat === 'risk_metrics' || item.cat === 'portfolio_performance' ? 'text-violet-400 bg-violet-500/10 border-violet-500/30' :
+                         'text-orange-400 bg-orange-500/10 border-orange-500/30';
 
         div.innerHTML = `
           <div class="flex items-center justify-between gap-2 mb-1">
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border ${tagClass} font-bold">${item.id} // ${item.cat.toUpperCase()}</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border ${tagClass} font-bold">${item.id} // ${(item.ds || item.cat).toUpperCase()}</span>
             <span class="text-[10px] font-mono text-gray-400">${item.title}</span>
           </div>
           <p class="text-xs text-gray-200 font-sans line-clamp-2">${item.prompt}</p>
@@ -955,23 +1286,38 @@
       renderPromptChips(cat);
     }
 
-    let activeAgentData = null;
+    function onDatasetScopeChanged() {
+      playSound('click');
+      const scope = document.getElementById('agent-dataset-scope').value;
+      renderPromptChips(scope);
+    }
 
-    // Execute Agent Query
+    // =========================================================================
+    // EXECUTE AGENT QUERY & LIVE REACT TRACE
+    // =========================================================================
     async function executeLiveAgent() {
       const q = document.getElementById('agent-query-input').value.trim();
       if (!q) return;
+
+      const targetDs = document.getElementById('agent-dataset-scope').value;
+      const storedKey = localStorage.getItem('gemini_api_key') || null;
 
       playSound('click');
       document.getElementById('agent-default-state').classList.add('hidden');
       document.getElementById('agent-active-state').classList.add('hidden');
       document.getElementById('agent-loading-state').classList.remove('hidden');
 
+      const payload = {
+        question: q,
+        target_dataset: targetDs === 'all' ? null : targetDs,
+        api_key: storedKey,
+      };
+
       try {
         const res = await fetch('/api/v1/query', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ question: q })
+          body: JSON.stringify(payload)
         });
         if (res.ok) {
           const data = await res.json();
@@ -983,7 +1329,7 @@
         console.warn("Live query error, fallback:", err);
       }
 
-      // Offline simulation
+      // Offline simulation fallback
       setTimeout(() => {
         playSound('success');
         renderAgentLiveHUD({
@@ -993,12 +1339,13 @@
           direct_answer: `Analysis executed for: "${q}"`,
           methodology: "Processed via AST read-only guardrails against relational SQLite schema.",
           total_latency_ms: 1.75,
+          primary_dataset: targetDs !== 'all' ? targetDs : 'portfolios',
           telemetry: {
             tool: "sql_query_tool",
             latency_ms: 1.75,
-            sql: `SELECT * FROM portfolios WHERE LOWER(portfolio_name) LIKE '%${q.replace(/'/g, "")}%';`,
-            tables_used: ["portfolios"],
-            indexes_used: ["sqlite_autoindex_portfolios_1"]
+            sql: `SELECT * FROM ${targetDs !== 'all' ? targetDs : 'portfolios'} LIMIT 10;`,
+            tables_used: [targetDs !== 'all' ? targetDs : 'portfolios'],
+            indexes_used: ["sqlite_autoindex"]
           },
           evidence: [{ "Status": "Success", "Question": q }]
         });
@@ -1033,9 +1380,21 @@
         <span class="px-2 py-1 rounded bg-[#0d0f12] border border-white/10 text-gray-300">ROWS: <strong class="text-white">${rowCount}</strong></span>
       `;
 
-      const tablesUsed = (telem.tables_used && telem.tables_used.length > 0) ? telem.tables_used.join(', ') : 'portfolios, holdings, securities';
+      // Dataset traceability
+      currentAgentPrimaryDataset = data.primary_dataset || (telem.tables_used && telem.tables_used.length > 0 ? telem.tables_used[0] : 'portfolios');
+      const badgePrimary = document.getElementById('agent-primary-dataset-badge');
+      if (badgePrimary) {
+        badgePrimary.innerText = currentAgentPrimaryDataset.toUpperCase();
+      }
+      const lblView = document.getElementById('label-view-dataset');
+      if (lblView) {
+        lblView.innerText = `VIEW DATASET: ${currentAgentPrimaryDataset.toUpperCase()} ↗`;
+      }
+
+      const tablesUsed = (telem.tables_used && telem.tables_used.length > 0) ? telem.tables_used.join(', ') : currentAgentPrimaryDataset;
+      const engineMode = telem.mode || 'local';
       document.getElementById('agent-reasoning-flow').innerHTML = `
-        <div><span class="text-emerald-400 font-bold">[1. INTENT & PLAN]:</span> Routed to <strong>${tool}</strong> based on rationale: <em>${data.routing_rationale}</em></div>
+        <div><span class="text-emerald-400 font-bold">[1. INTENT & PLAN]:</span> Routed to <strong>${tool}</strong> (${engineMode}) based on rationale: <em>${data.routing_rationale}</em></div>
         <div><span class="text-cyan-400 font-bold">[2. AST SECURITY]:</span> Enforced read-only sandbox. Statement verified SELECT/WITH only (zero mutations).</div>
         <div><span class="text-amber-400 font-bold">[3. EXECUTION]:</span> Query executed against SQLite table(s): <strong>${tablesUsed}</strong> in <strong>${latencyStr} ms</strong>.</div>
         <div><span class="text-violet-400 font-bold">[4. SYNTHESIS]:</span> Answer grounded on constituent evidence ledger without arithmetic hallucination.</div>
@@ -1067,7 +1426,7 @@
       }
 
       // SQL Code
-      const sqlText = telem.sql || "-- Pure Python Quantitative Math (Exposure Calculator Engine)";
+      const sqlText = telem.sql || data.generated_sql || "-- Pure Python Quantitative Math (Exposure Calculator Engine)";
       document.getElementById('agent-sql-render').innerText = sqlText;
       const idx = (telem.indexes_used && telem.indexes_used.length > 0) ? telem.indexes_used.join(', ') : 'Indexed Primary Key';
       document.getElementById('agent-query-plan-render').innerHTML = `
@@ -1098,6 +1457,51 @@
         const cnt = document.getElementById(`tab-pane-${t}`);
         if (t === tab) {
           btn.className = "px-4 py-2 border-b-2 border-[#ff5722] text-[#ff5722] font-bold transition flex items-center gap-1.5";
+          cnt.classList.remove('hidden');
+        } else {
+          btn.className = "px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white transition flex items-center gap-1.5";
+          cnt.classList.add('hidden');
+        }
+      });
+    }
+
+    function copyCurrentAgentPayload() {
+      playSound('click');
+      if (activeAgentData) {
+        navigator.clipboard.writeText(JSON.stringify(activeAgentData, null, 2));
+        alert("Payload copied to clipboard!");
+      }
+    }
+
+    function copyCurrentAgentSQL() {
+      playSound('click');
+      if (activeAgentData && activeAgentData.telemetry && activeAgentData.telemetry.sql) {
+        navigator.clipboard.writeText(activeAgentData.telemetry.sql);
+        alert("SQL query copied to clipboard!");
+      } else if (activeAgentData && activeAgentData.generated_sql) {
+        navigator.clipboard.writeText(activeAgentData.generated_sql);
+        alert("SQL query copied to clipboard!");
+      }
+    }
+
+    function jumpToDatasetStudio(tableName) {
+      playSound('click');
+      const target = tableName || currentAgentPrimaryDataset || 'portfolios';
+      scrollToId('dataset-studio');
+      loadActiveTableGrid(target);
+      playSound('success');
+    }
+
+    function jumpToSqlSandbox() {
+      playSound('click');
+      scrollToId('sql-sandbox-container');
+      const sql = (activeAgentData && activeAgentData.telemetry && activeAgentData.telemetry.sql) ||
+                  (activeAgentData && activeAgentData.generated_sql) || '';
+      if (sql) {
+        document.getElementById('custom-sql-textarea').value = sql;
+        runCustomSqlSandbox();
+      }
+    }
           cnt.classList.remove('hidden');
         } else {
           btn.className = "px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white transition flex items-center gap-1.5";
@@ -1485,6 +1889,7 @@
     // App Initialization
     async function initEverything() {
       lucide.createIcons();
+      fetchApiKeyStatus();
       renderPromptChips('all');
 
       // Fetch Portfolios

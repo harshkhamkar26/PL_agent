@@ -57,10 +57,15 @@ class PortfolioAgent:
         )
         self.query_history: List[Dict[str, Any]] = []
 
-    def answer_question(self, question: str) -> Dict[str, Any]:
+    def answer_question(
+        self,
+        question: str,
+        target_dataset: Optional[str] = None,
+        api_key: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
         Processes a natural language question, selects the appropriate tool,
-        and generates an evidence-grounded response.
+        and generates an evidence-grounded response with full dataset traceability.
         """
         start_time = time.perf_counter()
 
@@ -69,11 +74,13 @@ class PortfolioAgent:
 
         raw_output = {}
         formatted_response = {}
+        primary_dataset = "portfolios"
 
         # Step 2: Tool Execution
         if selected_tool == TOOL_COMPARE:
             p1 = params.get("portfolio_1")
             p2 = params.get("portfolio_2")
+            primary_dataset = "holdings"
             try:
                 raw_output = self.exposure_calculator.compare_portfolios(p1, p2)
                 formatted_response = ResponseFormatter.format_comparison_response(raw_output)
@@ -89,6 +96,7 @@ class PortfolioAgent:
 
         elif selected_tool == TOOL_EXPOSURE:
             pname = params.get("portfolio_name", question)
+            primary_dataset = "holdings"
             try:
                 raw_output = self.exposure_calculator.calculate_exposure(pname)
                 formatted_response = ResponseFormatter.format_exposure_response(raw_output)
@@ -103,6 +111,7 @@ class PortfolioAgent:
                 }
 
         elif selected_tool == TOOL_HYBRID:
+            primary_dataset = "portfolios"
             wf = params.get("workflow_type", "risk")
             if wf == "top_aum":
                 limit = params.get("limit", 5)
@@ -116,8 +125,15 @@ class PortfolioAgent:
             formatted_response = ResponseFormatter.format_hybrid_response(raw_output)
 
         else:  # Default: TOOL_SQL
-            raw_output = self.sql_tool.execute_text2sql(question)
+            raw_output = self.sql_tool.execute_text2sql(
+                question,
+                target_dataset=target_dataset,
+                api_key=api_key,
+            )
             formatted_response = ResponseFormatter.format_sql_response(raw_output)
+            primary_dataset = raw_output.get("primary_dataset") or (
+                raw_output.get("tables_used", ["portfolios"])[0] if raw_output.get("tables_used") else (target_dataset or "portfolios")
+            )
 
         elapsed_ms = round((time.perf_counter() - start_time) * 1000.0, 2)
 
@@ -133,6 +149,9 @@ class PortfolioAgent:
             "formatted_markdown": formatted_response.get("formatted_markdown", ""),
             "raw_tool_output": raw_output,
             "total_latency_ms": elapsed_ms,
+            "primary_dataset": primary_dataset,
+            "target_dataset": target_dataset,
+            "generated_sql": raw_output.get("generated_sql"),
         }
 
         # Track history
@@ -142,6 +161,7 @@ class PortfolioAgent:
             "tool": selected_tool,
             "latency_ms": elapsed_ms,
             "direct_answer": response_payload["direct_answer"][:80],
+            "primary_dataset": primary_dataset,
         })
 
         return response_payload

@@ -57,10 +57,17 @@ def serve_dashboard_alias():
 
 class QueryRequest(BaseModel):
     question: str = Field(..., description="Natural language question about investment portfolios")
+    target_dataset: Optional[str] = Field(None, description="Optional target database table scope")
+    api_key: Optional[str] = Field(None, description="Optional per-request Google Gemini API key")
 
 
 class CustomSQLRequest(BaseModel):
     sql: str = Field(..., description="User-defined SELECT query to execute through AST guardrails")
+
+
+class KeyConfigRequest(BaseModel):
+    api_key: str = Field(..., description="Google Gemini API key")
+    save_to_env: bool = Field(False, description="Persist key to local .env configuration file")
 
 
 class QueryResponse(BaseModel):
@@ -74,6 +81,9 @@ class QueryResponse(BaseModel):
     telemetry: Dict[str, Any]
     evidence: Optional[Any] = None
     total_latency_ms: float
+    primary_dataset: Optional[str] = None
+    target_dataset: Optional[str] = None
+    generated_sql: Optional[str] = None
 
 
 @app.get("/health", tags=["System"])
@@ -93,16 +103,54 @@ def health_check():
     }
 
 
+@app.get("/api/v1/config/key/status", tags=["Intelligence Config"])
+def get_api_key_status():
+    """Returns active AI engine status, masking sensitive tokens."""
+    return agent.gemini_client.get_status()
+
+
+@app.post("/api/v1/config/key", tags=["Intelligence Config"])
+def configure_api_key(req: KeyConfigRequest):
+    """
+    Validates a Google Gemini API key via live API handshake and activates it.
+    """
+    clean_key = req.api_key.strip()
+    if not clean_key:
+        agent.gemini_client.set_api_key("", save_to_env=req.save_to_env)
+        return {"success": True, "message": "API key cleared. Local deterministic engine active."}
+
+    # Perform live connection verification
+    test_result = agent.gemini_client.test_connection(test_key=clean_key)
+    if test_result.get("success"):
+        agent.gemini_client.set_api_key(clean_key, save_to_env=req.save_to_env)
+        return {
+            "success": True,
+            "message": test_result.get("message", "API key verified successfully."),
+            "model": test_result.get("model", "gemini-2.5-flash"),
+            "latency_ms": test_result.get("latency_ms", 0),
+        }
+    else:
+        return {
+            "success": False,
+            "error": test_result.get("error", "Failed to authenticate API key with Google GenAI."),
+            "latency_ms": test_result.get("latency_ms", 0),
+        }
+
+
 @app.post("/api/v1/query", response_model=QueryResponse, tags=["Agent Analytics"])
 def ask_portfolio_agent(req: QueryRequest):
     """
     Translates a natural language question into validated SQL or exposure metrics,
-    returning an evidence-grounded financial audit payload.
+    returning an evidence-grounded financial audit payload with dataset traceability.
     """
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
-    res = agent.answer_question(req.question)
+    res = agent.answer_question(
+        req.question,
+        target_dataset=req.target_dataset,
+        api_key=req.api_key,
+    )
     return QueryResponse(
         timestamp=res.get("timestamp", ""),
         question=res["question"],
@@ -114,6 +162,9 @@ def ask_portfolio_agent(req: QueryRequest):
         telemetry=res["telemetry"],
         evidence=res.get("evidence"),
         total_latency_ms=res.get("total_latency_ms", 0.0),
+        primary_dataset=res.get("primary_dataset"),
+        target_dataset=res.get("target_dataset"),
+        generated_sql=res.get("generated_sql"),
     )
 
 
