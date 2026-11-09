@@ -1834,21 +1834,6 @@
         runCustomSqlSandbox();
       }
     }
-          cnt.classList.remove('hidden');
-        } else {
-          btn.className = "px-4 py-2 border-b-2 border-transparent text-gray-400 hover:text-white transition flex items-center gap-1.5";
-          cnt.classList.add('hidden');
-        }
-      });
-    }
-
-    function copyCurrentAgentPayload() {
-      playSound('click');
-      if (activeAgentData) {
-        navigator.clipboard.writeText(JSON.stringify(activeAgentData, null, 2));
-        alert("Payload copied to clipboard!");
-      }
-    }
 
     // =========================================================================
     // DATASET STUDIO & HONEYCOMB LOGIC (FRAME 04 AESTHETIC)
