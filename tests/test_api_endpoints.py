@@ -125,3 +125,46 @@ def test_api_dashboard_html_serving(client):
     assert "PL CAPITAL" in r2.text
 
 
+def test_api_dataset_tables(client):
+    r = client.get("/api/v1/dataset/tables")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["total_tables"] == 9
+    assert data["total_records"] == 603
+    assert len(data["tables"]) == 9
+
+
+def test_api_dataset_table_data(client):
+    r = client.get("/api/v1/dataset/table/portfolios?limit=5")
+    assert r.status_code == 200
+    data = r.json()
+    assert data["table_name"] == "portfolios"
+    assert data["total_rows"] == 13
+    assert len(data["rows"]) == 5
+    assert len(data["columns"]) == 8
+
+
+def test_api_dataset_custom_sql(client):
+    r = client.post("/api/v1/dataset/sql", json={"sql": "SELECT COUNT(*) as count FROM securities WHERE asset_type = 'Stock';"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["success"] is True
+    assert data["rows"][0]["count"] == 25
+
+
+def test_api_dataset_custom_sql_rejected(client):
+    r = client.post("/api/v1/dataset/sql", json={"sql": "DROP TABLE holdings;"})
+    assert r.status_code == 200
+    data = r.json()
+    assert data["success"] is False
+    assert "Disallowed query type" in data["error"]
+
+
+def test_api_dataset_table_csv(client):
+    r = client.get("/api/v1/dataset/table/sectors/csv")
+    assert r.status_code == 200
+    assert "text/csv" in r.headers["content-type"]
+    assert "sector_id,sector_name" in r.text
+
+
+

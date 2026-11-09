@@ -26,6 +26,7 @@ from database.db_manager import DatabaseManager, default_db_manager
 from evaluation.evaluator import AgentEvaluator
 from tools.exposure_calculator import ExposureCalculator
 from validation.data_reconciler import DataReconciler
+from validation.sql_validator import ALLOWED_TABLES, SQLValidator
 
 app = FastAPI(
     title="PL Capital Portfolio Analytics API",
@@ -56,6 +57,10 @@ def serve_dashboard_alias():
 
 class QueryRequest(BaseModel):
     question: str = Field(..., description="Natural language question about investment portfolios")
+
+
+class CustomSQLRequest(BaseModel):
+    sql: str = Field(..., description="User-defined SELECT query to execute through AST guardrails")
 
 
 class QueryResponse(BaseModel):
@@ -241,6 +246,105 @@ def run_evaluation():
     """Runs the 10-question ground truth evaluation benchmark."""
     evaluator = AgentEvaluator(db_manager)
     return evaluator.evaluate_all()
+
+
+@app.get("/api/v1/dataset/tables", tags=["Dataset Studio"])
+def list_dataset_tables():
+    """Lists all 9 relational tables with row counts and column schemas."""
+    summary = db_manager.verify_database()
+    schema_summary = db_manager.get_schema_summary()
+    tables = []
+    descriptions = {
+        "portfolios": "Investment portfolios with AUM, target risk level, strategy, and benchmark index.",
+        "holdings": "Constituent portfolio positions, quantities, cost basis, and allocation weights.",
+        "securities": "Master security definition for stocks and fixed-income bonds.",
+        "sectors": "Institutional industry classifications (10 sectors).",
+        "transactions": "Historical BUY and SELL execution logs with prices and settlement dates.",
+        "historical_prices": "Daily pricing time series with open, close, high, low, and volume.",
+        "benchmarks": "Market benchmark definitions (S&P 500, QQQ, AGG, etc.).",
+        "portfolio_performance": "Daily NAV, multi-horizon returns, Sharpe ratio, and drawdowns.",
+        "risk_metrics": "Value at Risk (VaR 95/99), CVaR, Beta, Tracking Error, and Sortino ratio.",
+    }
+    for tbl, info in summary["table_details"].items():
+        cols = schema_summary.get(tbl, [])
+        tables.append({
+            "table_name": tbl,
+            "row_count": info["count"],
+            "status": info["status"],
+            "description": descriptions.get(tbl, "Relational dataset table"),
+            "columns_count": len(cols),
+            "columns": cols,
+        })
+    return {"total_tables": len(tables), "total_records": summary["total_records"], "tables": tables}
+
+
+@app.get("/api/v1/dataset/table/{table_name}", tags=["Dataset Studio"])
+def get_table_data(
+    table_name: str,
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    search: Optional[str] = Query(None),
+):
+    """Returns paginated records from any of the 9 relational tables."""
+    if table_name.lower() not in ALLOWED_TABLES:
+        raise HTTPException(status_code=400, detail=f"Table '{table_name}' is not in approved schema.")
+
+    conn = db_manager.get_connection()
+    cur = conn.cursor()
+    cur.execute(f"PRAGMA table_info({table_name});")
+    col_info = [{"name": r["name"], "type": r["type"], "pk": bool(r["pk"])} for r in cur.fetchall()]
+    col_names = [c["name"] for c in col_info]
+
+    where_clause = ""
+    params = []
+    if search:
+        text_cols = [c["name"] for c in col_info if "CHAR" in c["type"].upper() or "TEXT" in c["type"].upper() or c["name"] in ["portfolio_name", "symbol", "company_name", "sector_name", "notes"]]
+        if not text_cols:
+            text_cols = col_names[:3]
+        clauses = [f"{col} LIKE ?" for col in text_cols]
+        where_clause = " WHERE " + " OR ".join(clauses)
+        params = [f"%{search}%"] * len(text_cols)
+
+    count_query = f"SELECT COUNT(*) FROM {table_name}{where_clause};"
+    cur.execute(count_query, params)
+    total_matching = cur.fetchone()[0]
+
+    data_query = f"SELECT * FROM {table_name}{where_clause} LIMIT ? OFFSET ?;"
+    cur.execute(data_query, params + [limit, offset])
+    rows = [dict(r) for r in cur.fetchall()]
+    conn.close()
+
+    return {
+        "table_name": table_name,
+        "total_rows": total_matching,
+        "limit": limit,
+        "offset": offset,
+        "columns": col_info,
+        "rows": rows,
+    }
+
+
+@app.post("/api/v1/dataset/sql", tags=["Dataset Studio"])
+def execute_custom_sql(req: CustomSQLRequest):
+    """Executes any user-defined SQL query safely through AST inspection."""
+    res = agent.sql_tool.execute_direct_sql(req.sql)
+    return res
+
+
+@app.get("/api/v1/dataset/table/{table_name}/csv", tags=["Dataset Studio"])
+def export_table_csv(table_name: str):
+    """Exports any relational table as downloadable CSV."""
+    if table_name.lower() not in ALLOWED_TABLES:
+        raise HTTPException(status_code=400, detail=f"Table '{table_name}' is not in approved schema.")
+    conn = db_manager.get_connection()
+    df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn)
+    conn.close()
+    csv_str = df.to_csv(index=False)
+    return Response(
+        content=csv_str,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={table_name}.csv"},
+    )
 
 
 if __name__ == "__main__":
