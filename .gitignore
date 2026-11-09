@@ -74,3 +74,6 @@ desktop.ini
 
 # Logs
 *.log
+
+# Scratch workspace scripts
+scratch/
