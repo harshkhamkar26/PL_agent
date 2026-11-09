@@ -30,22 +30,33 @@ from validation.sql_validator import ALLOWED_TABLES, SQLValidator
 
 from fastapi.middleware.cors import CORSMiddleware
 
+import traceback
 from contextlib import asynccontextmanager
+from fastapi.responses import JSONResponse
 
-agent = PortfolioAgent()
-db_manager = default_db_manager
-exposure_calc = ExposureCalculator(db_manager)
-reconciler = DataReconciler(db_manager)
+_init_error = None
+try:
+    agent = PortfolioAgent()
+    db_manager = default_db_manager
+    exposure_calc = ExposureCalculator(db_manager)
+    reconciler = DataReconciler(db_manager)
+except Exception:
+    _init_error = traceback.format_exc()
+    agent = None
+    db_manager = None
+    exposure_calc = None
+    reconciler = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Warm up database connection and master entity indexes."""
-    try:
-        conn = db_manager.get_connection()
-        conn.close()
-    except Exception as e:
-        print(f"[API Startup] DB warm-up notice: {e}")
+    if db_manager is not None:
+        try:
+            conn = db_manager.get_connection()
+            conn.close()
+        except Exception as e:
+            print(f"[API Startup] DB warm-up notice: {e}")
     yield
 
 
@@ -55,6 +66,20 @@ app = FastAPI(
     version="2.0.0",
     lifespan=lifespan,
 )
+
+
+@app.middleware("http")
+async def diagnostic_middleware(request, call_next):
+    if _init_error:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "INIT_ERROR",
+                "error": _init_error,
+            }
+        )
+    return await call_next(request)
+
 
 app.add_middleware(
     CORSMiddleware,
