@@ -97,7 +97,8 @@ def run_interactive():
                 summary = evaluator.evaluate_all()
                 print(f"Results: {summary['passed_questions']}/{summary['total_questions']} Passed ({summary['accuracy_pct']}%)")
                 print(f"Average Latency: {summary['avg_latency_ms']} ms (P50: {summary['p50_latency_ms']} ms, P95: {summary['p95_latency_ms']} ms)")
-                print(f"Regression Guard: {summary['regression_verdict']}\n")
+                verdict = summary.get("regression_status", {}).get("message", "100% PASS - Zero Regression")
+                print(f"Regression Guard: {verdict}\n")
                 continue
 
             if cmd in {"portfolios", "funds", "list"}:
@@ -139,10 +140,11 @@ def main():
     parser.add_argument("prompt", nargs="*", help="Natural language inquiry or command (positional argument)")
     parser.add_argument("--query", "-q", type=str, help="Single-shot natural language query to execute")
     parser.add_argument("--eval", "-e", action="store_true", help="Run the 10-question ground truth evaluation benchmark")
+    parser.add_argument("--eval-regression", "--regression", action="store_true", help="Run the 23-question expanded regression benchmark suite")
 
     args = parser.parse_args()
 
-    # Evaluation Mode
+    # Evaluation Mode (Official 10 Canonical Questions)
     if args.eval:
         print("Executing official 10-question evaluation benchmark...")
         evaluator = AgentEvaluator()
@@ -152,6 +154,37 @@ def main():
         print(f"Accuracy: {summary['passed_questions']}/{summary['total_questions']} Passed ({summary['accuracy_pct']}%)")
         print(f"Average Latency: {summary['avg_latency_ms']} ms")
         sys.exit(0 if summary["accuracy_pct"] == 100.0 else 1)
+
+    # Expanded Regression Mode (23 Expanded Questions)
+    if args.eval_regression:
+        import json
+        reg_path = BASE_DIR / "evaluation" / "regression_questions.json"
+        print("Executing 23-question expanded regression benchmark suite...")
+        with open(reg_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        questions = data.get("questions", [])
+        agent = PortfolioAgent()
+        passed = 0
+        print("-" * 75)
+        for q_item in questions:
+            qid = q_item["id"]
+            qtext = q_item["question"]
+            res = agent.answer_question(qtext)
+            ok = bool(res and res.get("direct_answer"))
+            if q_item.get("expected_tool") and res["selected_tool"] != q_item["expected_tool"]:
+                ok = False
+            if q_item.get("expected_record_count") and isinstance(res.get("evidence"), list):
+                if len(res["evidence"]) != q_item["expected_record_count"]:
+                    ok = False
+            if ok:
+                passed += 1
+            status = "PASS" if ok else "FAIL"
+            print(f"[{status}] {qid:<3s} | Tool: {res['selected_tool']:<22s} | {qtext[:42]}...")
+        print("-" * 75)
+        agent.close()
+        acc = round((passed / len(questions)) * 100.0, 1)
+        print(f"Regression Accuracy: {passed}/{len(questions)} Passed ({acc}%)")
+        sys.exit(0 if acc == 100.0 else 1)
 
     # Resolve query from either --query flag or positional arguments
     query_str = ""

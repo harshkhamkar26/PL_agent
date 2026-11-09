@@ -98,9 +98,10 @@ class PortfolioAgent:
 
         elif selected_tool == TOOL_EXPOSURE:
             pname = params.get("portfolio_name", question)
+            target_sec = params.get("target_sector")
             primary_dataset = "holdings"
             try:
-                raw_output = self.exposure_calculator.calculate_exposure(pname)
+                raw_output = self.exposure_calculator.calculate_exposure(pname, target_sector=target_sec)
                 formatted_response = ResponseFormatter.format_exposure_response(raw_output)
             except Exception as e:
                 raw_output = {"success": False, "error": str(e)}

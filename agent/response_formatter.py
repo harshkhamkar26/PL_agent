@@ -135,8 +135,15 @@ class ResponseFormatter:
         notes = result.get("audit_notes", [])
 
         # Direct answer string
-        exp_summary = ", ".join(f"{sec}: {pct:.1f}%" for sec, pct in exposures.items()) if exposures else "0.00% (Pure Fixed Income)"
-        direct_ans = f"{pname} Equity Sector Exposure: {exp_summary}"
+        target_sec = result.get("target_sector")
+        target_pct = result.get("target_sector_pct")
+        if target_sec and target_pct is not None:
+            direct_ans = f"{pname} has a {target_pct:.1f}% equity allocation to {target_sec}."
+        elif exposures:
+            exp_summary = ", ".join(f"{sec}: {pct:.1f}%" for sec, pct in exposures.items())
+            direct_ans = f"{pname} Equity Sector Exposure: {exp_summary}"
+        else:
+            direct_ans = f"{pname} Equity Sector Exposure: 0.00% (Pure Fixed Income)"
 
         card_lines = [
             f"### [Portfolio Exposure Analysis: {pname}]",

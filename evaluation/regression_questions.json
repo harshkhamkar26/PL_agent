@@ -1,0 +1,189 @@
+{
+  "test_suite_name": "PL Capital FIA Expanded Regression Suite",
+  "version": "2.0.0",
+  "total_questions": 23,
+  "questions": [
+    {
+      "id": "R1",
+      "category": "company_name_resolution",
+      "question": "Which portfolios hold Apple?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 7,
+      "expected_symbol": "AAPL",
+      "description": "Verifies company-name resolution to AAPL and returns only holding portfolios."
+    },
+    {
+      "id": "R2",
+      "category": "symbol_resolution",
+      "question": "Which portfolios contain AAPL?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 7,
+      "expected_symbol": "AAPL",
+      "description": "Verifies ticker resolution to AAPL and returns only holding portfolios."
+    },
+    {
+      "id": "R3",
+      "category": "company_name_resolution",
+      "question": "Show me portfolios invested in Microsoft.",
+      "expected_tool": "sql_query_tool",
+      "expected_symbol": "MSFT",
+      "description": "Verifies company-name resolution to MSFT."
+    },
+    {
+      "id": "R4",
+      "category": "symbol_resolution",
+      "question": "Find all holdings of MSFT.",
+      "expected_tool": "sql_query_tool",
+      "expected_symbol": "MSFT",
+      "description": "Verifies ticker resolution to MSFT."
+    },
+    {
+      "id": "R5",
+      "category": "scalar_aggregation",
+      "question": "What is the total AUM across all portfolios?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 1,
+      "description": "Verifies total institutional AUM returns a single scalar record of $323.5M."
+    },
+    {
+      "id": "R6",
+      "category": "scalar_aggregation",
+      "question": "What is the average portfolio AUM?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 1,
+      "description": "Verifies average AUM calculation across all portfolios."
+    },
+    {
+      "id": "R7",
+      "category": "scalar_aggregation",
+      "question": "How many active portfolios do we have?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 1,
+      "description": "Verifies active portfolio count filtering."
+    },
+    {
+      "id": "R8",
+      "category": "grouped_aggregation",
+      "question": "Which sector has the highest average security price?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 1,
+      "description": "Verifies grouped sector price aggregation with ranking limit 1."
+    },
+    {
+      "id": "R9",
+      "category": "financial_performance",
+      "question": "What is the average return for each portfolio?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 4,
+      "description": "Verifies portfolio average return calculation grouped by portfolio."
+    },
+    {
+      "id": "R10",
+      "category": "financial_performance",
+      "question": "What is the average one-year return for each portfolio?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 4,
+      "description": "Verifies 1-year grouped return calculation."
+    },
+    {
+      "id": "R11",
+      "category": "transactions_filter",
+      "question": "Give me all transactions for Apple",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 4,
+      "expected_symbol": "AAPL",
+      "description": "Verifies transactions filtered strictly by resolved Apple security."
+    },
+    {
+      "id": "R12",
+      "category": "transactions_filter",
+      "question": "Show the latest transactions for AAPL",
+      "expected_tool": "sql_query_tool",
+      "expected_symbol": "AAPL",
+      "description": "Verifies ticker-specific transaction lookup."
+    },
+    {
+      "id": "R13",
+      "category": "transactions_filter",
+      "question": "Show transactions involving Amazon",
+      "expected_tool": "sql_query_tool",
+      "expected_symbol": "AMZN",
+      "description": "Verifies Amazon transaction filter."
+    },
+    {
+      "id": "R14",
+      "category": "sector_exposure_percentage",
+      "question": "What percentage of Growth Equity Fund is invested in Technology?",
+      "expected_tool": "exposure_calculator",
+      "expected_portfolio": "Growth Equity Fund",
+      "expected_target_percentage": 93.0,
+      "description": "Verifies portfolio sector allocation percentage routing and calculation."
+    },
+    {
+      "id": "R15",
+      "category": "portfolio_exposure",
+      "question": "What are the sector exposures for the Tech Innovation Fund?",
+      "expected_tool": "exposure_calculator",
+      "expected_portfolio": "Tech Innovation Fund",
+      "description": "Verifies canonical exposure calculation."
+    },
+    {
+      "id": "R16",
+      "category": "portfolio_exposure",
+      "question": "Calculate the sector exposure breakdown for international equity",
+      "expected_tool": "exposure_calculator",
+      "expected_portfolio": "International Equity Fund",
+      "description": "Verifies portfolio name resolution and exposure calculation."
+    },
+    {
+      "id": "R17",
+      "category": "portfolio_comparison",
+      "question": "Compare the sector exposures of Tech Innovation Fund and International Equity Fund",
+      "expected_tool": "portfolio_comparison",
+      "description": "Verifies side-by-side active spread comparison."
+    },
+    {
+      "id": "R18",
+      "category": "hybrid_analytics",
+      "question": "Show sector exposure and total AUM for all high-risk portfolios",
+      "expected_tool": "hybrid_analytics",
+      "description": "Verifies multi-step risk cohort plus sector exposure aggregation."
+    },
+    {
+      "id": "R19",
+      "category": "risk_and_drawdown",
+      "question": "Which portfolios have the lowest maximum drawdown?",
+      "expected_tool": "sql_query_tool",
+      "description": "Verifies capital preservation drawdown ranking."
+    },
+    {
+      "id": "R20",
+      "category": "risk_and_drawdown",
+      "question": "Which portfolios have the highest Sortino ratio?",
+      "expected_tool": "sql_query_tool",
+      "description": "Verifies Sortino downside risk ranking."
+    },
+    {
+      "id": "R21",
+      "category": "fixed_income_segregation",
+      "question": "Show all bonds in our database",
+      "expected_tool": "sql_query_tool",
+      "description": "Verifies fixed-income partitioning from equities."
+    },
+    {
+      "id": "R22",
+      "category": "market_cap_ranking",
+      "question": "Which five securities have the highest market capitalization?",
+      "expected_tool": "sql_query_tool",
+      "expected_record_count": 5,
+      "description": "Verifies market cap ranking of top 5 equity securities."
+    },
+    {
+      "id": "R23",
+      "category": "conversational_assistant",
+      "question": "Who are you and what are your capabilities?",
+      "expected_tool": "conversational_assistant",
+      "description": "Verifies conversational assistant and system wellbeing routing."
+    }
+  ]
+}

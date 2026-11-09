@@ -164,10 +164,14 @@ class DatabaseManager:
     def execute_query(self, sql: str, params: Tuple = ()) -> Tuple[List[Dict[str, Any]], List[str], float]:
         """
         Executes a SQL query safely and returns (rows as dicts, column names, execution_time_ms).
+        Enforces read-only SQLite authorizer callback at the engine level.
         """
+        from validation.sql_validator import sqlite_read_only_authorizer
+
         start_time = time.perf_counter()
         conn = self.get_connection()
         try:
+            conn.set_authorizer(sqlite_read_only_authorizer)
             cursor = conn.cursor()
             cursor.execute(sql, params)
             columns = [desc[0] for desc in cursor.description] if cursor.description else []

@@ -85,10 +85,10 @@ class ExposureCalculator:
         available = ", ".join([f"'{p[1]}' (ID: {p[0]})" for p in all_portfolios])
         raise ValueError(f"Could not resolve portfolio '{identifier}'. Available portfolios: {available}")
 
-    def calculate_exposure(self, identifier: Union[str, int]) -> Dict[str, Any]:
+    def calculate_exposure(self, identifier: Union[str, int], target_sector: Optional[str] = None) -> Dict[str, Any]:
         """
         Calculates equity sector exposures, concentration indices (HHI, Neff),
-        and weight reconciliation metrics.
+        and weight reconciliation metrics. Supports highlighting a target_sector.
         """
         portfolio_id, portfolio_name = self.resolve_portfolio(identifier)
 
@@ -207,9 +207,20 @@ class ExposureCalculator:
                 "Notice: 100% Fixed-Income portfolio. Equity sector exposure is 0.00%."
             )
 
+        target_sector_pct = None
+        if target_sector:
+            # Case-insensitive lookup
+            for sec_name, pct in sector_exposures.items():
+                if sec_name.lower() == target_sector.lower():
+                    target_sector = sec_name
+                    target_sector_pct = pct
+                    break
+
         return {
             "portfolio_id": portfolio_id,
             "portfolio_name": portfolio_name,
+            "target_sector": target_sector,
+            "target_sector_pct": target_sector_pct,
             "sector_exposures": sector_exposures,
             "sector_details": sector_details,
             "total_equity_exposure_pct": round(total_equity_pct, 2),
