@@ -16,6 +16,7 @@ if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
 from agent.intent_router import (
+    TOOL_CHAT,
     TOOL_COMPARE,
     TOOL_EXPOSURE,
     TOOL_HYBRID,
@@ -24,6 +25,7 @@ from agent.intent_router import (
 )
 from agent.response_formatter import ResponseFormatter
 from database.db_manager import DatabaseManager, default_db_manager
+from intelligence.conversational_assistant import ConversationalAssistant
 from intelligence.gemini_client import GeminiClient, default_gemini_client
 from tools.exposure_calculator import ExposureCalculator
 from tools.hybrid_analytics import HybridAnalyticsTool
@@ -109,6 +111,29 @@ class PortfolioAgent:
                     "telemetry": {"tool": TOOL_EXPOSURE, "status": "ERROR"},
                     "formatted_markdown": f"❌ **Error:** Could not calculate exposure: {str(e)}",
                 }
+
+        elif selected_tool == TOOL_CHAT:
+            primary_dataset = "portfolios"
+            raw_output = ConversationalAssistant.answer_chat(question)
+            if self.gemini_client.is_configured():
+                try:
+                    persona_prompt = f"""You are the PL Capital Financial Intelligence Agent (FIA), an institutional AI copilot for Prabhudas Lilladher Capital.
+You analyze 13 investment portfolios, calculate pure equity sector exposures (strictly excluding bonds), enforce AST read-only SQL safety, and provide evidence-grounded reports.
+
+User question: "{question}"
+
+Answer this conversational or system question with institutional depth, clarity, and warmth."""
+                    resp = self.gemini_client.client.models.generate_content(
+                        model=self.gemini_client.model_name,
+                        contents=persona_prompt,
+                    )
+                    if resp and resp.text:
+                        raw_output["direct_answer"] = resp.text.strip().split("\n")[0]
+                        raw_output["explanation"] = resp.text.strip()
+                except Exception:
+                    pass
+
+            formatted_response = ResponseFormatter.format_chat_response(raw_output)
 
         elif selected_tool == TOOL_HYBRID:
             primary_dataset = "portfolios"

@@ -18,6 +18,7 @@ TOOL_SQL = "sql_query_tool"
 TOOL_EXPOSURE = "exposure_calculator"
 TOOL_HYBRID = "hybrid_analytics"
 TOOL_COMPARE = "portfolio_comparison"
+TOOL_CHAT = "conversational_assistant"
 
 
 class IntentRouter:
@@ -30,6 +31,23 @@ class IntentRouter:
         Returns: (tool_name, parameters, routing_rationale)
         """
         q_norm = question.strip().lower()
+
+        # 0. Check for Conversational / Agent Identity / Wellbeing / Explanations
+        chat_triggers = [
+            r"\b(who\s+are\s+you|what\s+are\s+you|what\s+is\s+your\s+name|tell\s+me\s+about\s+yourself|introduce\s+yourself)\b",
+            r"\b(wellbeing|well-being|how\s+are\s+you|how\s+is\s+your|how\s+do\s+you\s+feel|are\s+you\s+okay|system\s+status|health\s+check|how\s+are\s+things)\b",
+            r"\b(what\s+can\s+you\s+do|capabilities|what\s+tools\s+do\s+you\s+have|how\s+do\s+you\s+work|what\s+are\s+your\s+features)\b",
+            r"\b(why\s+exclude\s+bonds|how\s+do\s+you\s+handle\s+bonds|how\s+do\s+you\s+partition\s+debt|how\s+does\s+ast\s+work|what\s+is\s+ast)\b",
+            r"\b(what\s+is\s+hhi|what\s+is\s+sharpe|what\s+is\s+sortino|what\s+is\s+beta|what\s+is\s+var|explain\s+hhi)\b",
+            r"\b(what\s+is\s+pl\s+capital|about\s+pl\s+capital|tell\s+me\s+about\s+pl\s+capital|who\s+is\s+prabhudas)\b",
+            r"^(hi|hello|hey|greetings|good\s+morning|good\s+afternoon|good\s+evening|help|help\s+me|whoami)$",
+        ]
+        if any(re.search(pat, q_norm) for pat in chat_triggers):
+            return (
+                TOOL_CHAT,
+                {"question": question},
+                "Conversational inquiry regarding agent identity, system wellbeing, architecture, or financial definitions.",
+            )
 
         # 1. Check for Portfolio Comparison Intent
         # Triggers: "compare ... and ...", "comparison between ... and ..."
