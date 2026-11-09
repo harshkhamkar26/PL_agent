@@ -16,6 +16,12 @@ if str(BASE_DIR) not in sys.path:
 from agent.portfolio_agent import PortfolioAgent
 from evaluation.evaluator import AgentEvaluator
 
+# Vercel / PaaS automatic FastAPI entrypoint compatibility
+try:
+    from api import app as app
+except ImportError:
+    pass
+
 
 def clean_query_string(q: str) -> str:
     """Strips leading/trailing quotes that may be introduced via command shells."""

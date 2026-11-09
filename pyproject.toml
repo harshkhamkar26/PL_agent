@@ -1,0 +1,9 @@
+[tool.vercel]
+entrypoint = "api:app"
+
+[project]
+name = "pl-capital-agent"
+version = "2.0.0"
+description = "PL Capital Portfolio Analytics & Financial Intelligence Agent"
+readme = "README.md"
+requires-python = ">=3.10"
